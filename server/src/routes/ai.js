@@ -565,4 +565,45 @@ ${JSON.stringify(resumeData)}
   }
 });
 
+
+/* ================================
+   CAREER COACH CHAT
+   ================================ */
+router.post('/career-coach', async (req, res) => {
+  try {
+    const { message, history } = req.body;
+
+    // Construct Context
+    const systemPrompt = `
+    You are an expert AI Career Coach named "Coach".
+    Your goal is to help candidates with:
+    - Resume improvements
+    - Interview preparation
+    - Job search strategies
+    - Career path planning
+
+    Tone: Professional, encouraging, concise, and actionable.
+    `;
+
+    // Map history to provider format (basic)
+    const conversation = [
+        { role: 'system', content: systemPrompt },
+        ...(history || []).map(msg => ({
+            role: msg.role === 'user' ? 'user' : 'assistant',
+            content: msg.content
+        })),
+        { role: 'user', content: message }
+    ];
+
+    const text = await generateAIContent(conversation, message);
+    
+    res.json({ reply: text });
+
+  } catch (error) {
+    console.error('Career Coach AI failed:', error);
+    res.json({ reply: "I'm currently offline (AI service unavailable). Please try again later." });
+  }
+});
+
 export default router;
+
