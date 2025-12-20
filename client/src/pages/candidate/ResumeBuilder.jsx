@@ -167,6 +167,10 @@ const ResumeBuilder = () => {
 
       const aiData = response.data || {};
 
+      if (aiData.isMock) {
+        alert(`AI Generation Failed: ${aiData.error || 'Unknown Error'}. \n\nLoaded mock data instead. Please check your backend logs and API keys.`);
+      }
+
       // Merge Strategy: Keep existing valid data, use AI for missing/new data
       // For arrays, we append AI suggestions
       const currentData = getValues();

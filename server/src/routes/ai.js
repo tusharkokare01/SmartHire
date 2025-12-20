@@ -295,9 +295,13 @@ router.post('/generate-resume', async (req, res) => {
     const data = extractJSON(text);
 
     res.json(data);
+    res.json(data);
   } catch (err) {
-    console.warn('Resume AI failed → mock used');
-    res.json(getMockResumeData(req.body.role || 'Software Engineer'));
+    console.error('Resume AI Generation Failed:', err.message);
+    if (err.response) console.error('Provider Error:', JSON.stringify(err.response.data));
+    
+    const mockData = getMockResumeData(req.body.role || 'Software Engineer');
+    res.json({ ...mockData, isMock: true, error: err.message });
   }
 });
 
