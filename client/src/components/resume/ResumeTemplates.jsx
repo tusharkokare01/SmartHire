@@ -142,7 +142,11 @@ export const Template1 = ({ formData }) => (
             <h2 className="text-lg font-bold mb-3 pb-1 border-b border-gray-800 uppercase">{section.title}</h2>
             <ul className="list-disc list-inside space-y-1">
               {section.items.map((item, idx) => (
-                <li key={idx} className="text-sm text-gray-700">{item}</li>
+                <li key={idx} className="text-sm text-gray-700">
+                  {typeof item === 'object' ? (
+                    item.link ? <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{item.title || item.name || 'Link'}</a> : (item.title || item.name || JSON.stringify(item))
+                  ) : item}
+                </li>
               ))}
             </ul>
           </div>
@@ -323,7 +327,11 @@ export const Template2 = ({ formData }) => (
               </h2>
               <ul className="list-disc list-inside space-y-2">
                 {section.items.map((item, idx) => (
-                  <li key={idx} className="text-sm text-gray-700">{item}</li>
+                  <li key={idx} className="text-sm text-gray-700">
+                    {typeof item === 'object' ? (
+                      item.link ? <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:underline">{item.title || item.name || 'Link'}</a> : (item.title || item.name || JSON.stringify(item))
+                    ) : item}
+                  </li>
                 ))}
               </ul>
             </div>
@@ -511,7 +519,11 @@ export const Template3 = ({ formData }) => (
               </h2>
               <ul className="list-disc list-inside space-y-2">
                 {section.items.map((item, idx) => (
-                  <li key={idx} className="text-sm text-gray-700">{item}</li>
+                  <li key={idx} className="text-sm text-gray-700">
+                    {typeof item === 'object' ? (
+                      item.link ? <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:underline">{item.title || item.name || 'Link'}</a> : (item.title || item.name || JSON.stringify(item))
+                    ) : item}
+                  </li>
                 ))}
               </ul>
             </div>
