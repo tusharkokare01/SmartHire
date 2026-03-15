@@ -295,13 +295,9 @@ router.post('/generate-resume', async (req, res) => {
     const data = extractJSON(text);
 
     res.json(data);
-    res.json(data);
   } catch (err) {
-    console.error('Resume AI Generation Failed:', err.message);
-    if (err.response) console.error('Provider Error:', JSON.stringify(err.response.data));
-    
-    const mockData = getMockResumeData(req.body.role || 'Software Engineer');
-    res.json({ ...mockData, isMock: true, error: err.message });
+    console.warn('Resume AI failed → mock used');
+    res.json(getMockResumeData(req.body.role || 'Software Engineer'));
   }
 });
 
@@ -413,7 +409,7 @@ router.post('/evaluate-interview', async (req, res) => {
     }
 
     const prompt = `
-    Evaluate this interview answer.
+    Evaluate this interview answer a strictly not much but strictly .
     
     Question: "${question}"
     Answer: "${answer}"
@@ -442,9 +438,9 @@ router.post('/evaluate-interview', async (req, res) => {
     // Mock Fallback prevents 500 crashes
     res.json({
       overallRating: 75,
-      confidenceScore: 80,
-      clarityScore: 70,
-      relevanceScore: 85,
+      confidenceScore: 60,
+      clarityScore: 60,
+      relevanceScore: 65,
       suggestions: ["Speak more confidently", "Provide specific examples"],
       idealAnswer: "A structured answer using the STAR method..."
     });
@@ -569,7 +565,6 @@ ${JSON.stringify(resumeData)}
   }
 });
 
-
 /* ================================
    CAREER COACH CHAT
    ================================ */
@@ -577,37 +572,42 @@ router.post('/career-coach', async (req, res) => {
   try {
     const { message, history } = req.body;
 
-    // Construct Context
-    const systemPrompt = `
-    You are an expert AI Career Coach named "Coach".
-    Your goal is to help candidates with:
-    - Resume improvements
-    - Interview preparation
-    - Job search strategies
-    - Career path planning
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
 
-    Tone: Professional, encouraging, concise, and actionable.
-    `;
-
-    // Map history to provider format (basic)
-    const conversation = [
-        { role: 'system', content: systemPrompt },
-        ...(history || []).map(msg => ({
-            role: msg.role === 'user' ? 'user' : 'assistant',
-            content: msg.content
-        })),
-        { role: 'user', content: message }
+    // Prepare Messages for Groq/Perplexity
+    const messages = [
+      { role: 'system', content: 'You are an expert career coach. Provide helpful, encouraging, and actionable career advice. Keep answers concise (under 200 words) where possible.' },
+      ...(history || []).map(msg => ({ 
+        role: msg.role === 'assistant' ? 'assistant' : 'user', 
+        content: msg.content 
+      })),
+      { role: 'user', content: message }
     ];
 
-    const text = await generateAIContent(conversation, message);
-    
+    // Prepare Prompt for Gemini
+    const historyText = (history || []).map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n');
+    const geminiPrompt = `
+      You are an expert career coach.
+      
+      CONVERSATION HISTORY:
+      ${historyText}
+      
+      USER: ${message}
+      
+      Respond as the career coach.
+    `;
+
+    const text = await generateAIContent(messages, geminiPrompt);
     res.json({ reply: text });
 
   } catch (error) {
-    console.error('Career Coach AI failed:', error);
-    res.json({ reply: "I'm currently offline (AI service unavailable). Please try again later." });
+    console.error('Career Coach Error:', error);
+    res.status(500).json({ 
+      reply: "I'm having trouble connecting to my brain right now. Please try again in a moment." 
+    });
   }
 });
 
 export default router;
-

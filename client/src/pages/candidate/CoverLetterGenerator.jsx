@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FileText, Search, PenTool, Download, Copy, Loader2, ArrowRight, CheckCircle, ArrowLeft } from 'lucide-react';
 import Layout from '../../components/common/Layout';
 import { useAuth } from '../../contexts/AuthContext';
-import { loadJSON } from '../../utils/storage';
+import { fetchAllResumes } from '../../services/resumeService';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../../utils/constants';
@@ -20,13 +20,17 @@ const CoverLetterGenerator = () => {
   const [generatedLetter, setGeneratedLetter] = useState('');
 
   useEffect(() => {
-    if (user?.email) {
-      const savedResumes = loadJSON(`resumes_list_${user.email}`, []);
-      setResumes(savedResumes);
-      if (savedResumes.length > 0) {
-        setSelectedResumeId(savedResumes[0].id);
+    const loadData = async () => {
+      if (!user?.email) return;
+
+      const unifiedResumes = await fetchAllResumes(user);
+      setResumes(unifiedResumes);
+
+      if (unifiedResumes.length > 0) {
+        setSelectedResumeId(unifiedResumes[0].id);
       }
-    }
+    };
+    loadData();
   }, [user]);
 
   const handleGenerate = async () => {

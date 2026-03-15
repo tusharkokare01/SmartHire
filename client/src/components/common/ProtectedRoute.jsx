@@ -4,6 +4,7 @@ import { ROUTES } from '../../utils/constants';
 
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const { user, loading } = useAuth();
+  const normalizedRole = typeof user?.role === 'string' ? user.role.trim().toLowerCase() : '';
 
   if (loading) {
     return (
@@ -17,8 +18,12 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     return <Navigate to={ROUTES.LOGIN} replace />;
   }
 
-  if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-    return <Navigate to={user.role === 'candidate' ? ROUTES.CANDIDATE_DASHBOARD : ROUTES.HR_DASHBOARD} replace />;
+  const normalizedAllowedRoles = allowedRoles.map((role) =>
+    typeof role === 'string' ? role.trim().toLowerCase() : role
+  );
+
+  if (allowedRoles.length > 0 && !normalizedAllowedRoles.includes(normalizedRole)) {
+    return <Navigate to={normalizedRole === 'hr' ? ROUTES.HR_DASHBOARD : ROUTES.CANDIDATE_DASHBOARD} replace />;
   }
 
   return children;

@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import { Video, Mic, Play, Square, Send, TrendingUp, Loader2, Sparkles, Briefcase, Code, Clock, CheckCircle2, FileText, ChevronDown, Volume2, Trophy, Download, ArrowLeft, Lock } from 'lucide-react';
 import Layout from '../../components/common/Layout';
 import { useAuth } from '../../contexts/AuthContext';
-import { loadJSON, saveJSON } from '../../utils/storage';
+import { fetchAllResumes } from '../../services/resumeService';
 import axios from 'axios';
 import { ROUTES } from '../../utils/constants';
+import { loadJSON, saveJSON } from '../../utils/storage';
 
 
 const MockInterview = () => {
@@ -35,10 +36,12 @@ const MockInterview = () => {
   const [startTime, setStartTime] = useState(null);
 
   useEffect(() => {
-    if (user?.email) {
-      const savedResumes = loadJSON(`resumes_list_${user.email}`, []);
-      setResumes(savedResumes);
-    }
+    const loadData = async () => {
+      if (!user?.email) return;
+      const unifiedResumes = await fetchAllResumes(user);
+      setResumes(unifiedResumes);
+    };
+    loadData();
   }, [user]);
 
   useEffect(() => {
@@ -55,9 +58,9 @@ const MockInterview = () => {
 
     setIsProcessing(true);
     try {
-     const selectedResume = resumes.find(
-  r => String(r.id || r._id) === String(selectedResumeId)
-);
+      const selectedResume = resumes.find(
+        r => String(r.id || r._id) === String(selectedResumeId)
+      );
 
       const payload = { ...interviewParams, resumeData: selectedResume };
 
@@ -134,12 +137,12 @@ const MockInterview = () => {
     return () => {
       // 1. Stop Speech Synthesis
       window.speechSynthesis.cancel();
-      
+
       // 2. Stop Camera Stream
       if (mediaStream) {
         mediaStream.getTracks().forEach(track => track.stop());
       }
-      
+
       // 3. Stop Recognition
       if (recognitionRef.current) {
         recognitionRef.current.stop();
@@ -187,7 +190,7 @@ const MockInterview = () => {
         const recognition = new SpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
-        
+
         // Optimize: Don't rebuild string from scratch if possible, but for short answers strict mapping is safe.
         // Critical Fix: Ensure we don't have dupes from overlapping instances (handled by cleanup above).
         recognition.onresult = (event) => {
@@ -196,10 +199,10 @@ const MockInterview = () => {
             .join('');
           setTranscript(current);
         };
-        
+
         recognition.onerror = (event) => {
-             console.error("Speech reco error", event.error);
-             // Optional: Handle 'no-speech' or 'network' errors gracefully
+          console.error("Speech reco error", event.error);
+          // Optional: Handle 'no-speech' or 'network' errors gracefully
         };
 
         recognition.start();
@@ -606,8 +609,8 @@ const MockInterview = () => {
                     </svg>
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
                       <span className="text-6xl font-black text-slate-900 tracking-tighter">
-                        {userAnswers.length > 0 
-                          ? Math.round(userAnswers.reduce((acc, curr) => acc + (curr.evaluation?.overallRating || 0), 0) / userAnswers.length) 
+                        {userAnswers.length > 0
+                          ? Math.round(userAnswers.reduce((acc, curr) => acc + (curr.evaluation?.overallRating || 0), 0) / userAnswers.length)
                           : 0}
                         <span className="text-3xl text-slate-400 align-top">%</span>
                       </span>
@@ -625,8 +628,8 @@ const MockInterview = () => {
                   <Sparkles className="w-6 h-6" />
                 </div>
                 <div className="text-3xl font-bold text-slate-900 mb-1">
-                  {userAnswers.length > 0 
-                    ? Math.min(98, Math.round((userAnswers.reduce((acc, curr) => acc + (curr.evaluation?.overallRating || 0), 0) / userAnswers.length) * 1.1)) 
+                  {userAnswers.length > 0
+                    ? Math.min(98, Math.round((userAnswers.reduce((acc, curr) => acc + (curr.evaluation?.overallRating || 0), 0) / userAnswers.length) * 1.1))
                     : 0}%
                 </div>
                 <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Selection Probability</div>

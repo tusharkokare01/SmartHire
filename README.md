@@ -1,4 +1,4 @@
-# SmartRecruit v3 - Recruitment Platform
+# Smart Career hub v3 - Recruitment Platform
 
 A comprehensive recruitment platform with two user roles: **Candidate** (Job Seeker) and **HR** (Recruiter).
 
@@ -247,3 +247,4 @@ For implementation details, refer to `IMPLEMENTATION_ROADMAP.md`
 ---
 
 **Built with ❤️ using React + Vite**
+

@@ -23,6 +23,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ROUTES } from '../../utils/constants';
 import api from '../../services/api';
 import CareerCoach from '../../components/candidate/CareerCoach';
+import { fetchAllResumes } from '../../services/resumeService';
 import { loadJSON } from '../../utils/storage';
 
 const MOCK_JOBS = [
@@ -350,12 +351,19 @@ const Dashboard = () => {
         // const profileScore = user?.profileScore || 0; // REPLACED with Resume Count
 
         // --- NEW: Fetch Resumes & Extract Skills ---
-        const localResumes = loadJSON(`resumes_list_${user.email}`, []) || [];
-        const resumeCount = localResumes.length;
+        let allResumes = [];
+        try {
+          allResumes = await fetchAllResumes(user);
+        } catch (e) {
+          console.warn("Failed to fetch resumes for dashboard", e);
+          allResumes = [];
+        }
+
+        const resumeCount = allResumes.length;
 
         // Extract skills from all resumes
         const userSkills = new Set();
-        localResumes.forEach(r => {
+        allResumes.forEach(r => {
           if (Array.isArray(r.skills)) {
             r.skills.forEach(s => userSkills.add(s.toLowerCase()));
           }

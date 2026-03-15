@@ -38,8 +38,11 @@ router.post('/', async (req, res) => {
     const saved = await application.save();
     res.status(201).json(saved);
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'You have already applied for this job' });
+    }
     console.error('Error creating application:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: error.message || 'Server error', details: error });
   }
 });
 

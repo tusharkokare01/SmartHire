@@ -155,7 +155,7 @@ const CandidateAssessments = () => {
               <span className="font-bold text-white">S</span>
             </div>
             <div>
-              <h2 className="font-bold text-slate-900 text-sm uppercase tracking-wide">SmartRecruit Evaluation</h2>
+              <h2 className="font-bold text-slate-900 text-sm uppercase tracking-wide">Smart Career hub Evaluation</h2>
               <p className="text-slate-500 text-xs font-medium">{activeTest.title} • {user?.name || 'Candidate'}</p>
             </div>
           </div>
@@ -363,3 +363,4 @@ const CandidateAssessments = () => {
 };
 
 export default CandidateAssessments;
+

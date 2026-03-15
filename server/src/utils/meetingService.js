@@ -101,7 +101,7 @@ export const createGoogleMeet = async (topic, startTime, duration = 60) => {
 
     const event = {
       summary: topic,
-      description: 'Interview scheduled via SmartRecruit',
+      description: 'Interview scheduled via Smart Career hub',
       start: {
         dateTime: startDateTime.toISOString(),
         timeZone: 'UTC',
@@ -132,3 +132,4 @@ export const createGoogleMeet = async (topic, startTime, duration = 60) => {
     return { url: `https://meet.google.com/fallback-${Math.random().toString(36).substring(7)}` };
   }
 };
+

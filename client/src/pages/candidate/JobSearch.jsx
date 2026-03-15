@@ -9,6 +9,7 @@ import axios from 'axios';
 import api from '../../services/api';
 import { ROUTES } from '../../utils/constants';
 import { MOCK_JOBS } from '../../data/mockJobs';
+import { fetchAllResumes } from '../../services/resumeService';
 
 const JobSearch = () => {
   const { user } = useAuth();
@@ -232,7 +233,7 @@ const JobSearch = () => {
           type: job.type,
           description: job.description,
           url: null, // Internal jobs don't have external URLs
-          source: 'SmartRecruit', // Mark as internal
+          source: 'Smart Career hub', // Mark as internal
           logo: null,
           date: job.createdAt,
           isInternal: true
@@ -337,58 +338,20 @@ const JobSearch = () => {
         setResumesLoading(true);
         setResumesError(null);
 
-        // 1. Fetch resumes from backend (source of truth for HR)
-        const response = await api.get(`/resume/user/${userId}`);
-        const backendResumes = (response.data || []).filter(Boolean);
+        // Use the unified service
+        const merged = await fetchAllResumes(user);
 
-        // 2. Load local resumes to get user-friendly names & templates
-        const localKey = `resumes_list_${user.email}`;
-        const localResumes = loadJSON(localKey, []);
+        // Map fields specifically for this UI if needed (displayName/displayTemplateId)
+        const finalResumes = merged.map(r => ({
+          ...r,
+          displayName: r.name,
+          displayTemplateId: r.templateId || 1,
+          _id: r.backendId || r.id // Ensure _id exists for the selection logic
+        }));
 
-        // Build lookup maps: by backendId and by name (case-insensitive)
-        const localByBackendId = new Map();
-        const localByName = new Map();
-        localResumes.forEach((local) => {
-          if (local?.backendId) {
-            localByBackendId.set(String(local.backendId), local);
-          }
-          if (local?.name) {
-            localByName.set(local.name.toLowerCase(), local);
-          }
-        });
-
-        // 3. Merge data so each backend resume carries the correct display name/template
-        const seenKeys = new Set();
-        const merged = [];
-
-        backendResumes.forEach((resume) => {
-          const idKey = String(resume._id || '');
-          const nameKey = (resume.resumeName || '').toLowerCase();
-
-          // Try match by backendId first, then by name
-          const local =
-            (idKey && localByBackendId.get(idKey)) ||
-            (nameKey && localByName.get(nameKey));
-
-          const displayName = local?.name || resume.resumeName || 'My Resume';
-          const displayTemplateId =
-            local?.templateId || resume.templateId || 1;
-
-          // De-duplicate by (displayName + template) so old duplicate DB rows don't show twice
-          const dedupeKey = `${displayName.toLowerCase()}::${displayTemplateId}`;
-          if (seenKeys.has(dedupeKey)) return;
-          seenKeys.add(dedupeKey);
-
-          merged.push({
-            ...resume,
-            displayName,
-            displayTemplateId,
-          });
-        });
-
-        setResumes(merged);
-        if (merged.length > 0) {
-          setSelectedResumeId(merged[0]._id);
+        setResumes(finalResumes);
+        if (finalResumes.length > 0) {
+          setSelectedResumeId(finalResumes[0]._id);
         }
       } catch (err) {
         console.error('Error fetching resumes for apply flow:', err);
@@ -614,7 +577,7 @@ const JobSearch = () => {
                   {jobs.length} Opportunities Available
                 </h2>
                 <div className="text-sm text-slate-500 flex gap-2">
-                  <span>Powered by SmartRecruit AI</span>
+                  <span>Powered by Smart Career hub AI</span>
                 </div>
               </div>
 
@@ -726,6 +689,7 @@ const JobSearch = () => {
                   {resumes.map((resume) => (
                     <label
                       key={resume._id}
+                      onClick={() => setSelectedResumeId(resume._id)}
                       className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${selectedResumeId === resume._id
                         ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500'
                         : 'border-slate-200 hover:border-emerald-300 hover:bg-slate-50'
@@ -791,3 +755,4 @@ const JobSearch = () => {
 };
 
 export default JobSearch;
+

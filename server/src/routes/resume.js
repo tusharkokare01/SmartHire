@@ -77,6 +77,20 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Get Single Resume by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const resume = await Resume.findById(req.params.id);
+    if (!resume) {
+      return res.status(404).json({ message: "Resume not found" });
+    }
+    res.json(resume);
+  } catch (error) {
+    console.error("Error fetching resume:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // Delete Resume by ID
 router.delete("/:resumeId", async (req, res) => {
   try {

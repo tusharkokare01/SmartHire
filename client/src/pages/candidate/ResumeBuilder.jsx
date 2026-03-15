@@ -8,6 +8,7 @@ import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
 import axios from 'axios';
+import api from '../../services/api';
 
 
 import Layout from '../../components/common/Layout';
@@ -118,12 +119,30 @@ const ResumeBuilder = () => {
     if (id && id !== 'new') {
       const allResumes = loadJSON(`resumes_list_${user.email}`, []);
       const found = allResumes.find(r => r.id.toString() === id);
+
       if (found) {
         const { name, lastUpdated, templateId, userId, backendId, ...rest } = found;
         reset(rest);
         setResumeName(name || 'My Resume');
         setSelectedTemplate(Number(templateId) || 1);
         setBackendResumeId(backendId || null);
+      } else {
+        // Fallback: Fetch from backend
+        const fetchFromBackend = async () => {
+          try {
+            const res = await api.get(`/resume/${id}`);
+            if (res.data) {
+              const { resumeName, templateId, userId, _id, ...rest } = res.data;
+              reset(rest);
+              setResumeName(resumeName || 'My Resume');
+              setSelectedTemplate(Number(templateId) || 1);
+              setBackendResumeId(_id);
+            }
+          } catch (e) {
+            console.error("Failed to load resume", e);
+          }
+        };
+        fetchFromBackend();
       }
     }
   }, [user, id, reset]);
@@ -167,10 +186,6 @@ const ResumeBuilder = () => {
 
       const aiData = response.data || {};
 
-      if (aiData.isMock) {
-        alert(`AI Generation Failed: ${aiData.error || 'Unknown Error'}. \n\nLoaded mock data instead. Please check your backend logs and API keys.`);
-      }
-
       // Merge Strategy: Keep existing valid data, use AI for missing/new data
       // For arrays, we append AI suggestions
       const currentData = getValues();
@@ -181,7 +196,7 @@ const ResumeBuilder = () => {
         personalInfo: {
           ...currentData.personalInfo,
           ...aiData.personalInfo,
-          fullName: typeof (currentData.personalInfo.fullName || aiData.personalInfo?.fullName) === 'string' 
+          fullName: typeof (currentData.personalInfo.fullName || aiData.personalInfo?.fullName) === 'string'
             ? (currentData.personalInfo.fullName || aiData.personalInfo?.fullName || '')
             : String(currentData.personalInfo.fullName || aiData.personalInfo?.fullName || ''),
           email: String(currentData.personalInfo.email || aiData.personalInfo?.email || ''),
@@ -329,40 +344,72 @@ const ResumeBuilder = () => {
     setIsDownloading(true);
     try {
       const canvas = await html2canvas(element, {
-        scale: 2, // Higher quality
+        scale: 2.0, // 2x is plenty sharp for printing while keeping file size small
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        letterRendering: true,
+        allowTaint: false
       });
 
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/jpeg', 0.95); // High quality JPEG for better compression than PNG
+      const pdf = new jsPDF('p', 'mm', 'a4', true); // Enable internal compression
+
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      // Maintain aspect ratio while fitting to PDF width
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
-      const ratio = pdfWidth / imgWidth;
-      const imgComponentHeight = imgHeight * ratio;
+      const imgScaledHeight = (imgHeight * pdfWidth) / imgWidth;
 
-      let heightLeft = imgComponentHeight;
+      let heightLeft = imgScaledHeight;
       let position = 0;
+      let currentPage = 1;
 
-      // First page
-      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgComponentHeight);
+      // Add first page
+      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgScaledHeight, undefined, 'FAST');
       heightLeft -= pdfHeight;
 
-      // Add extra pages if needed
+      // Add subsequent pages if content overflows A4 height
       while (heightLeft > 0) {
-        position = heightLeft - imgComponentHeight; // Top position for next page
+        position = heightLeft - imgScaledHeight;
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgComponentHeight);
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgScaledHeight, undefined, 'FAST');
         heightLeft -= pdfHeight;
+        currentPage++;
       }
+
+      // Add clickable links with correct mapping
+      const links = element.querySelectorAll('a[href]');
+      links.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+          const rect = link.getBoundingClientRect();
+          const elementRect = element.getBoundingClientRect();
+
+          const relX = rect.left - elementRect.left;
+          const relY = rect.top - elementRect.top;
+
+          // PDF Dimensions (A4): 210mm wide. Element width is 816px.
+          const pdfX = (relX / 816) * pdfWidth;
+          const pdfY = (relY / 816) * pdfWidth; // Y also depends on width ratio for accurate mapping
+          const pdfLinkWidth = (rect.width / 816) * pdfWidth;
+          const pdfLinkHeight = (rect.height / 816) * pdfWidth;
+
+          const linkPage = Math.floor(pdfY / pdfHeight);
+          if (linkPage < currentPage) {
+            pdf.setPage(linkPage + 1);
+            const pageY = pdfY - (linkPage * pdfHeight);
+            pdf.link(pdfX, pageY, pdfLinkWidth, pdfLinkHeight, { url: href });
+          }
+        }
+      });
 
       pdf.save(`${resumeName || 'resume'}.pdf`);
     } catch (error) {
       console.error('PDF Generation failed:', error);
-      alert('Failed to generate PDF');
+      alert('Failed to generate PDF. Please try again.');
     } finally {
       setIsDownloading(false);
     }
@@ -377,7 +424,7 @@ const ResumeBuilder = () => {
           children: [
             // Header
             new Paragraph({
-              text: formData.personalInfo.fullName || 'RESTUME',
+              text: formData.personalInfo.fullName || 'RESUME',
               heading: HeadingLevel.TITLE,
               alignment: AlignmentType.CENTER,
             }),
@@ -521,10 +568,12 @@ const ResumeBuilder = () => {
             id="resume-pdf-target"
             key={selectedTemplate}
             style={{
-              width: '816px', // Fixed A4 width
-              minHeight: '1056px',
+              width: '816px', // Fixed A4 width (72dpi * 8.5" approx / 96dpi * 8.27" = 794px, 816 is a safe standard)
+              minHeight: '1123px', // A4 height at 96dpi
               backgroundColor: 'white',
-              transform: 'scale(1)', // Ensure no scaling interference
+              transform: 'scale(1)',
+              paddingBottom: '60px', // Bottom margin for multi-page flow
+              display: 'block'
             }}
           >
             {renderTemplate()}

@@ -2,26 +2,43 @@
 import React from 'react';
 import { Phone, Mail, MapPin, Linkedin, Globe } from 'lucide-react';
 
+// Helper to safely render list items that might be objects
+const renderListItem = (item) => {
+  if (typeof item === 'object' && item !== null) {
+    return (
+      <span>
+        {item.title}
+        {item.link && (
+          <a
+            href={item.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-1 text-blue-600 hover:underline"
+          >
+            Link
+          </a>
+        )}
+      </span>
+    );
+  }
+  return item;
+};
+
 // Template 1: Professional Single Column (Alexander Taylor Style)
 export const Template1 = ({ formData }) => (
   <div
     className="bg-white p-12 min-h-[1056px] max-w-[816px] mx-auto shadow-lg"
-    style={{ fontFamily: 'Georgia, serif' }}
+    style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}
   >
     {/* Header */}
     <div className="text-center mb-6 pb-4">
       <h1 className="text-3xl font-bold mb-1" style={{ letterSpacing: '0.5px' }}>
         {formData.personalInfo.fullName || 'YOUR NAME'}
       </h1>
-      <div className="text-sm text-gray-600 space-x-2">
-        <span>{formData.experience[0]?.title || 'Professional Title'}</span>
-        <span>|</span>
-        <span>{formData.skills.slice(0, 3).join(' | ') || 'Skills'}</span>
-        <span>|</span>
-        <span>Team Leadership</span>
-      </div>
+      
       <div className="text-sm text-gray-600 mt-1">
         {formData.personalInfo.email}
+        {formData.personalInfo.phone && ` • ${formData.personalInfo.phone}`}
         {formData.personalInfo.linkedin && ` • ${formData.personalInfo.linkedin}`}
         {formData.personalInfo.address && ` • ${formData.personalInfo.address}`}
       </div>
@@ -124,6 +141,11 @@ export const Template1 = ({ formData }) => (
               <div>
                 <p className="font-bold text-sm">{edu.institution}</p>
                 <p className="text-sm text-gray-700">{edu.degree}</p>
+                {edu.gpa && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    {edu.gradeType === 'percentage' ? 'Percentage' : 'CGPA'}: {edu.gpa}
+                  </p>
+                )}
               </div>
               <div className="text-sm text-gray-600 text-right">
                 <p>{edu.year}</p>
@@ -142,11 +164,7 @@ export const Template1 = ({ formData }) => (
             <h2 className="text-lg font-bold mb-3 pb-1 border-b border-gray-800 uppercase">{section.title}</h2>
             <ul className="list-disc list-inside space-y-1">
               {section.items.map((item, idx) => (
-                <li key={idx} className="text-sm text-gray-700">
-                  {typeof item === 'object' ? (
-                    item.link ? <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{item.title || item.name || 'Link'}</a> : (item.title || item.name || JSON.stringify(item))
-                  ) : item}
-                </li>
+                <li key={idx} className="text-sm text-gray-700">{renderListItem(item)}</li>
               ))}
             </ul>
           </div>
@@ -184,10 +202,12 @@ export const Template2 = ({ formData }) => (
             <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
             <span>{formData.personalInfo.address || '123 Main Street, Anytown'}</span>
           </div>
-          <div className="flex items-start gap-2">
-            <Linkedin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-            <span className="break-all">{formData.personalInfo.linkedin || 'LINKEDIN.COM/'}</span>
-          </div>
+          {formData.personalInfo.linkedin && (
+            <div className="flex items-start gap-2">
+              <Linkedin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <span className="break-all">{formData.personalInfo.linkedin}</span>
+            </div>
+          )}
           {formData.personalInfo.github && (
             <div className="flex items-start gap-2">
               <Globe className="w-4 h-4 mt-0.5 flex-shrink-0" />
@@ -206,7 +226,11 @@ export const Template2 = ({ formData }) => (
               <p className="font-bold text-sm text-gray-800">{edu.degree}</p>
               <p className="text-sm text-gray-600">{edu.institution}</p>
               <p className="text-xs text-gray-500 mt-1">{edu.year}</p>
-              {edu.gpa && <p className="text-xs text-gray-500">(GPA: {edu.gpa})</p>}
+              {edu.gpa && (
+                <p className="text-xs text-gray-500">
+                  {edu.gradeType === 'percentage' ? 'Percentage' : 'CGPA'}: {edu.gpa}
+                </p>
+              )}
             </div>
           ))}
         </div>
@@ -262,7 +286,7 @@ export const Template2 = ({ formData }) => (
                   <p className="font-bold text-gray-800">{exp.title}</p>
                   <p className="text-sm text-gray-500">{exp.duration}</p>
                 </div>
-                <p className="text-sm text-gray-600 italic mb-2">{exp.company}</p>
+                <p className="text-sm text-gray-800 font-bold mb-2">{exp.company}</p>
                 {exp.description && (
                   <div className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{exp.description}</div>
                 )}
@@ -327,11 +351,7 @@ export const Template2 = ({ formData }) => (
               </h2>
               <ul className="list-disc list-inside space-y-2">
                 {section.items.map((item, idx) => (
-                  <li key={idx} className="text-sm text-gray-700">
-                    {typeof item === 'object' ? (
-                      item.link ? <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:underline">{item.title || item.name || 'Link'}</a> : (item.title || item.name || JSON.stringify(item))
-                    ) : item}
-                  </li>
+                  <li key={idx} className="text-sm text-gray-700">{renderListItem(item)}</li>
                 ))}
               </ul>
             </div>
@@ -386,7 +406,11 @@ export const Template3 = ({ formData }) => (
               <p className="text-sm font-semibold">{edu.year}</p>
               <p className="font-bold text-sm mt-1">{edu.institution?.toUpperCase()}</p>
               <p className="text-sm opacity-90">{edu.degree}</p>
-              {edu.gpa && <p className="text-xs opacity-75 mt-1">GPA: {edu.gpa}</p>}
+              {edu.gpa && (
+                <p className="text-xs opacity-75 mt-1">
+                  {edu.gradeType === 'percentage' ? 'Percentage' : 'CGPA'}: {edu.gpa}
+                </p>
+              )}
             </div>
           ))}
         </div>
@@ -519,11 +543,7 @@ export const Template3 = ({ formData }) => (
               </h2>
               <ul className="list-disc list-inside space-y-2">
                 {section.items.map((item, idx) => (
-                  <li key={idx} className="text-sm text-gray-700">
-                    {typeof item === 'object' ? (
-                      item.link ? <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:underline">{item.title || item.name || 'Link'}</a> : (item.title || item.name || JSON.stringify(item))
-                    ) : item}
-                  </li>
+                  <li key={idx} className="text-sm text-gray-700">{renderListItem(item)}</li>
                 ))}
               </ul>
             </div>

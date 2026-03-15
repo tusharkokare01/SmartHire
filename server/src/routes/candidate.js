@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import Interview from '../models/Interview.js';
 
 const router = express.Router();
@@ -21,8 +22,12 @@ router.get('/interviews', async (req, res) => {
     
     const { candidateId } = req.query;
 
-    if (!candidateId) {
+    if (!candidateId || candidateId === 'undefined' || candidateId === 'null') {
       return res.status(400).json({ message: 'Candidate ID is required' });
+    }
+
+    if (!mongoose.isValidObjectId(candidateId)) {
+      return res.status(400).json({ message: 'Invalid candidate ID' });
     }
 
     const interviews = await Interview.find({ candidateId, status: 'Scheduled' })

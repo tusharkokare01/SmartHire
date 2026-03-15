@@ -16,7 +16,7 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
-const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:27017/smartrecruit';
+const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:27017/SmartCareerHub';
 
 mongoose
   .connect(MONGO_URL)
@@ -28,7 +28,7 @@ mongoose
   });
 
 app.get('/', (req, res) => {
-  res.json({ status: 'SmartRecruit API running' });
+  res.json({ status: 'Smart Career hub API running' });
 });
 
 app.use('/api/auth', authRoutes);
@@ -49,5 +49,6 @@ app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
 // Using gemini-2.0-flash model
+
 
 

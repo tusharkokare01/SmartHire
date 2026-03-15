@@ -123,6 +123,19 @@ router.get('/activity', async (req, res) => {
   }
 });
 
+// Get All Candidates (for MCQ Assignment)
+router.get('/candidates', async (req, res) => {
+  try {
+    const candidates = await User.find({ role: 'candidate' })
+      .select('name email')
+      .sort({ createdAt: -1 });
+    res.json(candidates);
+  } catch (error) {
+    console.error('Error fetching candidates:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Get Upcoming Interviews
 router.get('/interviews/upcoming', async (req, res) => {
   try {

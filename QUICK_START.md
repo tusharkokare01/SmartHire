@@ -1,4 +1,4 @@
-# Quick Start Guide - SmartRecruit v3
+# Quick Start Guide - Smart Career hub v3
 
 ## 🚀 Get Started in 5 Minutes
 
@@ -120,4 +120,5 @@ Make sure Tailwind CSS is properly configured in `tailwind.config.js`
 ---
 
 **Ready to build? Check `IMPLEMENTATION_ROADMAP.md` for the 7-day plan!**
+
 

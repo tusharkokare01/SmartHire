@@ -15,7 +15,7 @@ const EducationForm = () => {
                 <h2 className="text-xl font-bold text-slate-900">Education</h2>
                 <button
                     type="button"
-                    onClick={() => append({ degree: '', institution: '', year: '', gpa: '' })}
+                    onClick={() => append({ degree: '', institution: '', year: '', gpa: '', gradeType: 'cgpa' })}
                     className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors text-sm font-medium"
                 >
                     <Plus className="w-4 h-4" />
@@ -59,10 +59,20 @@ const EducationForm = () => {
                                     placeholder="Year"
                                     className="px-4 py-2 border-2 border-slate-200 rounded-lg focus:border-emerald-500 outline-none"
                                 />
+                                <select
+                                    {...register(`education.${index}.gradeType`)}
+                                    className="px-4 py-2 border-2 border-slate-200 rounded-lg focus:border-emerald-500 outline-none bg-white"
+                                >
+                                    <option value="cgpa">CGPA</option>
+                                    <option value="percentage">Percentage</option>
+                                </select>
+                            </div>
+
+                            <div>
                                 <input
                                     {...register(`education.${index}.gpa`)}
-                                    placeholder="GPA"
-                                    className="px-4 py-2 border-2 border-slate-200 rounded-lg focus:border-emerald-500 outline-none"
+                                    placeholder="Enter value (e.g., 8.5 or 85)"
+                                    className="w-full px-4 py-2 border-2 border-slate-200 rounded-lg focus:border-emerald-500 outline-none"
                                 />
                             </div>
                         </div>

@@ -36,7 +36,7 @@ const ExtraSectionsForm = () => {
                 <div className="flex flex-wrap gap-2 mb-3">
                     {currentItems.map((item, idx) => (
                         <span key={idx} className="px-3 py-1 bg-white border border-slate-200 rounded-md text-sm flex items-center gap-2">
-                            {typeof item === 'object' ? (item.title || item.name || item.value || JSON.stringify(item)) : item}
+                            {item}
                             <button type="button" onClick={() => removeItem(item)} className="text-slate-400 hover:text-red-500"><X className="w-3 h-3"/></button>
                         </span>
                     ))}

@@ -51,9 +51,17 @@ const CandidateInterviews = () => {
 
   const fetchInterviews = async () => {
     if (!user) return;
+
+    const userId = user.id || user._id;
+    if (!userId || userId === 'undefined' || userId === 'null') {
+      setInterviews([]);
+      setError('User session is incomplete. Please sign in again.');
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      const userId = user.id || user._id;
       const response = await api.get(`/candidate/interviews?candidateId=${userId}`);
       const data = Array.isArray(response.data) ? response.data : [];
 

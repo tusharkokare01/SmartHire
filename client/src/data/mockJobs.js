@@ -6,7 +6,7 @@ export const MOCK_JOBS = [
     location: 'Remote',
     type: 'Full Time',
     description: 'We are looking for an experienced Full Stack Developer to lead our core product team. You will work with React, Node.js, and AWS to build scalable solutions.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -17,7 +17,7 @@ export const MOCK_JOBS = [
     location: 'New York, NY',
     type: 'Full Time',
     description: 'Join our award-winning design team. We need someone passionate about UI/UX and creating delightful user experiences.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -28,7 +28,7 @@ export const MOCK_JOBS = [
     location: 'San Francisco, CA',
     type: 'Contract',
     description: 'Help us build the next generation of AI models. Experience with Python, TensorFlow, and PyTorch is required.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -39,7 +39,7 @@ export const MOCK_JOBS = [
     location: 'Remote',
     type: 'Full Time',
     description: 'We are seeking a DevOps Engineer to manage our cloud infrastructure. Proficiency in Docker, Kubernetes, and Terraform is a must.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -50,7 +50,7 @@ export const MOCK_JOBS = [
     location: 'London, UK',
     type: 'Full Time',
     description: 'Lead our marketing campaigns and drive growth. You should have a strong background in digital marketing and analytics.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -61,7 +61,7 @@ export const MOCK_JOBS = [
     location: 'Berlin, Germany',
     type: 'Full Time',
     description: 'Create beautiful and responsive web interfaces. We use Vue.js and Tailwind CSS.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -72,7 +72,7 @@ export const MOCK_JOBS = [
     location: 'Remote',
     type: 'Full Time',
     description: 'Build robust APIs and microservices. Experience with Go or Rust is preferred.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -83,7 +83,7 @@ export const MOCK_JOBS = [
     location: 'Austin, TX',
     type: 'Part Time',
     description: 'Develop cross-platform mobile apps using Flutter or React Native.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -94,7 +94,7 @@ export const MOCK_JOBS = [
     location: 'Toronto, Canada',
     type: 'Full Time',
     description: 'Coordinate cross-functional teams and ensure project delivery. PMP certification is a plus.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -105,7 +105,7 @@ export const MOCK_JOBS = [
     location: 'Remote',
     type: 'Contract',
     description: 'Ensure software quality through automated and manual testing. Selenium experience required.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -116,7 +116,7 @@ export const MOCK_JOBS = [
     location: 'Seattle, WA',
     type: 'Freelance',
     description: 'Write clear and concise technical documentation for our APIs and SDKs.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -127,7 +127,7 @@ export const MOCK_JOBS = [
     location: 'Chicago, IL',
     type: 'Full Time',
     description: 'Maintain and troubleshoot our internal networks and servers. Linux expertise essential.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -138,7 +138,7 @@ export const MOCK_JOBS = [
     location: 'Los Angeles, CA',
     type: 'Full Time',
     description: 'Design intuitive interfaces for our upcoming AAA game title.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -149,7 +149,7 @@ export const MOCK_JOBS = [
     location: 'Remote',
     type: 'Full Time',
     description: 'Implement ML algorithms for predictive analytics. Strong math background needed.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -160,7 +160,7 @@ export const MOCK_JOBS = [
     location: 'New York, NY',
     type: 'Full Time',
     description: 'Analyze business processes and recommend improvements. SQL skills required.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -171,7 +171,7 @@ export const MOCK_JOBS = [
     location: 'Remote',
     type: 'Commission',
     description: 'Drive sales in the EMEA region. Proven track record in B2B sales needed.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -182,7 +182,7 @@ export const MOCK_JOBS = [
     location: 'Singapore',
     type: 'Full Time',
     description: 'Manage recruitment, onboarding, and employee relations.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -193,7 +193,7 @@ export const MOCK_JOBS = [
     location: 'Washington, DC',
     type: 'Full Time',
     description: 'Monitor and protect our systems from cyber threats. CISSP certification preferred.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -204,7 +204,7 @@ export const MOCK_JOBS = [
     location: 'Remote',
     type: 'Full Time',
     description: 'Design scalable cloud architectures on Azure or GCP.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -215,7 +215,7 @@ export const MOCK_JOBS = [
     location: 'Miami, FL',
     type: 'Contract',
     description: 'Develop smart contracts and dApps on Ethereum.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -226,7 +226,7 @@ export const MOCK_JOBS = [
     location: 'Remote',
     type: 'Full Time',
     description: 'Develop content strategies to increase brand awareness and engagement.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -237,7 +237,7 @@ export const MOCK_JOBS = [
     location: 'Montreal, Canada',
     type: 'Full Time',
     description: 'Program gameplay mechanics using C++ and Unreal Engine.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -248,7 +248,7 @@ export const MOCK_JOBS = [
     location: 'Remote',
     type: 'Full Time',
     description: 'Ensure database performance, security, and availability. Oracle or PostgreSQL.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -259,7 +259,7 @@ export const MOCK_JOBS = [
     location: 'Denver, CO',
     type: 'Freelance',
     description: 'Optimize website content to improve search engine rankings.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -270,7 +270,7 @@ export const MOCK_JOBS = [
     location: 'Remote',
     type: 'Full Time',
     description: 'Lead a team of support agents and ensure high customer satisfaction.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -281,7 +281,7 @@ export const MOCK_JOBS = [
     location: 'Sydney, Australia',
     type: 'Full Time',
     description: 'Design and implement network solutions. CCNA/CCNP required.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -292,7 +292,7 @@ export const MOCK_JOBS = [
     location: 'Boston, MA',
     type: 'Full Time',
     description: 'Analyze financial data and provide investment recommendations.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -303,7 +303,7 @@ export const MOCK_JOBS = [
     location: 'Remote',
     type: 'Contract',
     description: 'Edit promotional videos and social media content. Adobe Premiere Pro.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -314,7 +314,7 @@ export const MOCK_JOBS = [
     location: 'Los Angeles, CA',
     type: 'Full Time',
     description: 'Manage social media accounts and engage with the community.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   },
@@ -325,8 +325,9 @@ export const MOCK_JOBS = [
     location: 'New York, NY',
     type: 'Part Time',
     description: 'Provide legal advice on corporate matters and contracts.',
-    source: 'SmartRecruit Mock',
+    source: 'Smart Career hub Mock',
     date: new Date().toISOString(),
     url: '#'
   }
 ];
+

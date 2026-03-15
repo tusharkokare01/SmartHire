@@ -63,7 +63,7 @@ const HRLayout = ({ children, fullWidth = true }) => {
                             <span className="font-bold text-lg tracking-tighter">S</span>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-lg font-bold text-slate-900 tracking-tight leading-none group-hover:text-emerald-700 transition-colors">SmartRecruit</span>
+                            <span className="text-lg font-bold text-slate-900 tracking-tight leading-none group-hover:text-emerald-700 transition-colors">Smart Career hub</span>
                             <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mt-0.5">Enterprise</span>
                         </div>
                     </Link>
@@ -219,3 +219,4 @@ const HRLayout = ({ children, fullWidth = true }) => {
 };
 
 export default HRLayout;
+

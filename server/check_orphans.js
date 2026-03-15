@@ -6,7 +6,7 @@ import Application from './src/models/Application.js';
 
 dotenv.config();
 
-const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:27017/smartrecruit';
+const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:27017/Smart Career hub';
 
 mongoose.connect(MONGO_URL)
   .then(async () => {
@@ -31,3 +31,4 @@ mongoose.connect(MONGO_URL)
     console.error('Error:', err);
     mongoose.disconnect();
   });
+

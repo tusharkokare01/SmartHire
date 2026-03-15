@@ -203,8 +203,8 @@ const HRMCQ = () => {
     setShowAssignModal(true);
     setUpcomingCandidates([]); // Reset first
     try {
-      // Fetch upcoming candidates from interviews
-      const res = await api.get('/hr/interviews/upcoming');
+      // Fetch ALL candidates
+      const res = await api.get('/hr/candidates');
 
       // Get list of candidates who ALREADY have this assessment assigned
       // We look at 'results' where assessmentId matches 'aid'
@@ -214,22 +214,17 @@ const HRMCQ = () => {
           .map(r => r.candidateId?._id || r.candidateId)
       );
 
-      const unique = [];
-      const seen = new Set();
-
-      res.data.forEach(i => {
-        // Only valid candidates
-        if (i.candidateId && i.candidateId._id) {
-          const cid = i.candidateId._id;
-
-          // Filter duplicates from the interview list AND already assigned candidates
-          if (!seen.has(cid) && !assignedCandidateIds.has(cid)) {
-            seen.add(cid);
-            unique.push(i.candidateId);
-          }
+      const available = [];
+      
+      res.data.forEach(c => {
+        const cid = c._id;
+        // Only show candidates not already assigned
+        if (!assignedCandidateIds.has(cid)) {
+          available.push(c);
         }
       });
-      setUpcomingCandidates(unique);
+      
+      setUpcomingCandidates(available);
     } catch (e) { console.error(e); }
   };
 

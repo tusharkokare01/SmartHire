@@ -50,7 +50,7 @@ const Subscription = () => {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Enter the Key ID generated from the Dashboard
                 amount: order.amount,
                 currency: order.currency,
-                name: "SmartRecruit",
+                name: "Smart Career hub",
                 description: "Pro Subscription Upgrade",
                 order_id: order.id,
                 handler: async function (response) {
@@ -99,7 +99,7 @@ const Subscription = () => {
                     contact: user?.phone || "" // Add phone if available
                 },
                 notes: {
-                    address: "SmartRecruit HQ"
+                    address: "Smart Career hub HQ"
                 },
                 theme: {
                     color: "#059669" // matches emerald-600
@@ -295,3 +295,4 @@ const Subscription = () => {
 };
 
 export default Subscription;
+

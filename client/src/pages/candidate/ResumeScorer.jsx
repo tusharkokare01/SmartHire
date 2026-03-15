@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import Layout from '../../components/common/Layout';
 import { useAuth } from '../../contexts/AuthContext';
-import { loadJSON } from '../../utils/storage';
+import { fetchAllResumes } from '../../services/resumeService';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../../utils/constants';
@@ -30,14 +30,17 @@ const ResumeScorer = () => {
      LOAD RESUMES
   ============================ */
   useEffect(() => {
-    if (!user?.email) return;
+    const loadData = async () => {
+      if (!user?.email) return;
 
-    const saved = loadJSON(`resumes_list_${user.email}`, []);
-    setResumes(saved);
+      const unifiedResumes = await fetchAllResumes(user);
+      setResumes(unifiedResumes);
 
-    if (saved.length > 0) {
-      setSelectedResumeId(saved[0].id);
-    }
+      if (unifiedResumes.length > 0) {
+        setSelectedResumeId(unifiedResumes[0].id);
+      }
+    };
+    loadData();
   }, [user]);
 
   /* ===========================
@@ -50,37 +53,37 @@ const ResumeScorer = () => {
 
     experience: Array.isArray(resume.experience)
       ? resume.experience.map(exp => ({
-          title: exp.title || '',
-          company: exp.company || '',
-          duration: exp.duration || '',
-          description: exp.description || ''
-        }))
+        title: exp.title || '',
+        company: exp.company || '',
+        duration: exp.duration || '',
+        description: exp.description || ''
+      }))
       : [],
 
     education: Array.isArray(resume.education)
       ? resume.education.map(edu => ({
-          degree: edu.degree || '',
-          institution: edu.institution || '',
-          year: edu.year || '',
-          gpa: edu.gpa || ''
-        }))
+        degree: edu.degree || '',
+        institution: edu.institution || '',
+        year: edu.year || '',
+        gpa: edu.gpa || ''
+      }))
       : [],
 
     projects: Array.isArray(resume.projects)
       ? resume.projects.map(proj => ({
-          name: proj.name || '',
-          description: proj.description || '',
-          technologies: proj.technologies || '',
-          link: proj.link || ''
-        }))
+        name: proj.name || '',
+        description: proj.description || '',
+        technologies: proj.technologies || '',
+        link: proj.link || ''
+      }))
       : [],
 
     certifications: Array.isArray(resume.certifications)
       ? resume.certifications.map(cert => ({
-          name: cert.name || '',
-          issuer: cert.issuer || '',
-          year: cert.year || ''
-        }))
+        name: cert.name || '',
+        issuer: cert.issuer || '',
+        year: cert.year || ''
+      }))
       : [],
 
     skills: Array.isArray(resume.skills) ? resume.skills : [],
@@ -171,11 +174,10 @@ const ResumeScorer = () => {
                   <div
                     key={resume.id}
                     onClick={() => setSelectedResumeId(resume.id)}
-                    className={`p-4 mb-3 rounded-lg border-2 cursor-pointer ${
-                      selectedResumeId === resume.id
+                    className={`p-4 mb-3 rounded-lg border-2 cursor-pointer ${selectedResumeId === resume.id
                         ? 'border-emerald-600 bg-emerald-600/5'
                         : 'border-slate-200 hover:border-slate-300'
-                    }`}
+                      }`}
                   >
                     <div className="flex justify-between items-center">
                       <div>
@@ -191,9 +193,12 @@ const ResumeScorer = () => {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8 border-dashed border-2 rounded-lg">
-                  <p className="mb-4">No resumes found</p>
-                  <Link to={ROUTES.RESUME_BUILDER} className="btn-primary">
+                <div className="text-center py-8 border-dashed border-2 rounded-lg border-slate-200">
+                  <p className="mb-4 text-slate-500 font-medium">No resumes found</p>
+                  <Link
+                    to={ROUTES.RESUME_BUILDER}
+                    className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all font-semibold shadow-sm"
+                  >
                     Create Resume <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
                 </div>
@@ -244,10 +249,10 @@ const ResumeScorer = () => {
                 <div className="flex flex-wrap gap-2 mb-6">
                   {result.missingKeywords.length > 0
                     ? result.missingKeywords.map((k, i) => (
-                        <span key={i} className="px-3 py-1 bg-red-100 rounded-full text-sm">
-                          {k}
-                        </span>
-                      ))
+                      <span key={i} className="px-3 py-1 bg-red-100 rounded-full text-sm">
+                        {k}
+                      </span>
+                    ))
                     : <span className="text-sm text-slate-500">None 🎉</span>}
                 </div>
 
@@ -259,10 +264,10 @@ const ResumeScorer = () => {
                 <ul className="space-y-2">
                   {result.tips.length > 0
                     ? result.tips.map((tip, i) => (
-                        <li key={i} className="bg-blue-50 p-3 rounded text-sm">
-                          {tip}
-                        </li>
-                      ))
+                      <li key={i} className="bg-blue-50 p-3 rounded text-sm">
+                        {tip}
+                      </li>
+                    ))
                     : <li className="text-sm text-slate-500">No major improvements needed</li>}
                 </ul>
               </div>

@@ -5,7 +5,7 @@ import User from './server/src/models/User.js';
 import Assessment from './server/src/models/Assessment.js';
 import 'dotenv/config';
 
-const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:27017/smartrecruit';
+const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:27017/Smart Career hub';
 
 async function check() {
   try {
@@ -32,3 +32,4 @@ async function check() {
 }
 
 check();
+

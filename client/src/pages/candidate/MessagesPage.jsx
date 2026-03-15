@@ -51,6 +51,26 @@ const MessagesPage = () => {
         } catch (e) { console.error(e); }
     };
 
+    const deleteSelectedMessages = async () => {
+        if (!window.confirm(`Delete ${selectedIds.length} messages?`)) return;
+        try {
+            // Delete all selected messages in parallel
+            await Promise.all(selectedIds.map(id => api.delete(`/messages/${id}`)));
+            
+            // Update UI
+            setMessages(prev => prev.filter(m => !selectedIds.includes(m._id)));
+            setSelectedIds([]);
+            
+            // If the currently viewed message was deleted, close the view
+            if (selectedMessage && selectedIds.includes(selectedMessage._id)) {
+                setSelectedMessage(null);
+            }
+        } catch (e) {
+            console.error("Failed to delete messages", e);
+            alert("Failed to delete some messages");
+        }
+    };
+
     const sendReply = async () => {
         if (!replyText.trim()) return;
 
@@ -100,7 +120,11 @@ const MessagesPage = () => {
                             <RefreshCw className="w-5 h-5" />
                         </button>
                         {selectedIds.length > 0 && (
-                            <button className="p-2 hover:bg-red-50 rounded-full transition-colors text-slate-500 hover:text-red-600" title="Delete Selected">
+                            <button 
+                                onClick={deleteSelectedMessages}
+                                className="p-2 hover:bg-red-50 rounded-full transition-colors text-slate-500 hover:text-red-600" 
+                                title="Delete Selected"
+                            >
                                 <Trash2 className="w-5 h-5" />
                             </button>
                         )}

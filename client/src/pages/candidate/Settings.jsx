@@ -221,7 +221,7 @@ const Settings = () => {
                 </div>
 
                 <div className="text-center text-slate-400 text-sm">
-                    SmartRecruit v3.0.0
+                    Smart Career hub v3.0.0
                 </div>
             </div>
         </Layout>
@@ -229,3 +229,4 @@ const Settings = () => {
 };
 
 export default Settings;
+

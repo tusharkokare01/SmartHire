@@ -56,11 +56,20 @@ router.post('/register', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
+
+    if (typeof email !== 'string' || typeof password !== 'string' || !email.trim() || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
 
     // Check user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.trim() });
     if (!user) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // Legacy/malformed records should not crash login flow
+    if (typeof user.password !== 'string' || !user.password) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
@@ -68,6 +77,15 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // Ensure selected login role matches the account role
+    const selectedRole = typeof role === 'string' ? role.trim().toLowerCase() : '';
+    const accountRole = typeof user.role === 'string' ? user.role.trim().toLowerCase() : '';
+    if (selectedRole && selectedRole !== accountRole) {
+      return res.status(403).json({
+        message: `This account is registered as ${accountRole}. Please select the correct role to continue.`
+      });
     }
 
     // Create token

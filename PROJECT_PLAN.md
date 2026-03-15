@@ -1,4 +1,4 @@
-# SmartRecruit v3 - Project Plan & Roadmap
+# Smart Career hub v3 - Project Plan & Roadmap
 
 ## 🎯 Project Overview
 A comprehensive recruitment platform with two user roles:
@@ -188,4 +188,5 @@ client/
 3. Set up routing
 4. Build dashboard layouts
 5. Implement features module by module
+
 

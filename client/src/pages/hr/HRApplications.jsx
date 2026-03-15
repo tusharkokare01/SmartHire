@@ -206,6 +206,7 @@ const HRCandidates = () => {
       date: dateString,
       time: '10:00',
       location: '',
+      location: '',
       platform: 'Zoom'
     });
 
