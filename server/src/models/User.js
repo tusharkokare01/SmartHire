@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
     subscriptionStatus: { type: String, enum: ['free', 'active', 'canceled', 'past_due'], default: 'free' },
     subscriptionId: { type: String },
     customerId: { type: String },
+    couponApplied: { type: String, default: null }, // Track which coupon was applied
     bio: { type: String },
     notifications: {
       email: { type: Boolean, default: true },

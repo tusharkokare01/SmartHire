@@ -7,6 +7,7 @@ import HeatmapWidget from '../../components/hr/dashboard/HeatmapWidget';
 import CandidateTable from '../../components/hr/dashboard/CandidateTable';
 import api from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { MessageSquare, ArrowRight } from 'lucide-react';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -21,6 +22,7 @@ const Dashboard = () => {
 
   const [trends, setTrends] = useState([]);
   const [recentApplications, setRecentApplications] = useState([]);
+  const [feedbackSummary, setFeedbackSummary] = useState({ newCount: 0, total: 0 });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,6 +53,19 @@ const Dashboard = () => {
     };
 
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchFeedbackSummary = async () => {
+      try {
+        const res = await api.get('/feedback/all', { params: { status: 'New', limit: 1, page: 1 } });
+        const allRes = await api.get('/feedback/all', { params: { limit: 1, page: 1 } });
+        setFeedbackSummary({ newCount: res.data.total || 0, total: allRes.data.total || 0 });
+      } catch {
+        // non-critical — silently ignore
+      }
+    };
+    fetchFeedbackSummary();
   }, []);
 
   if (loading) {
@@ -115,6 +130,29 @@ const Dashboard = () => {
         {/* Bottom Section: Candidate Table */}
         <div>
           <CandidateTable candidates={recentApplications} />
+        </div>
+
+        {/* Feedback Summary Card */}
+        <div
+          onClick={() => navigate('/hr/feedback')}
+          className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 flex items-center justify-between cursor-pointer hover:border-emerald-300 hover:shadow-md transition-all group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center">
+              <MessageSquare className="w-6 h-6 text-emerald-600" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-900">User Feedback & Suggestions</h3>
+              <p className="text-sm text-slate-500">
+                {feedbackSummary.newCount > 0
+                  ? <span><span className="font-semibold text-amber-600">{feedbackSummary.newCount} new</span> submission{feedbackSummary.newCount !== 1 ? 's' : ''} awaiting review</span>
+                  : `${feedbackSummary.total} total submission${feedbackSummary.total !== 1 ? 's' : ''}`}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-emerald-600 font-semibold text-sm group-hover:gap-3 transition-all">
+            View All <ArrowRight className="w-4 h-4" />
+          </div>
         </div>
       </div>
     </Layout>

@@ -2,6 +2,24 @@
 import React from 'react';
 import { Phone, Mail, MapPin, Linkedin, Globe } from 'lucide-react';
 
+// Helper to format education date range
+// Accepts startDate/endDate in 'YYYY-MM' format and falls back to legacy 'year' field
+const formatEduDate = (edu) => {
+  const fmt = (dateStr) => {
+    if (!dateStr) return '';
+    const [y, m] = dateStr.split('-');
+    if (!y || !m) return dateStr;
+    const date = new Date(Number(y), Number(m) - 1);
+    return date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+  };
+  if (edu.startDate || edu.endDate) {
+    const start = fmt(edu.startDate);
+    const end = fmt(edu.endDate) || 'Present';
+    return start ? `${start} – ${end}` : end;
+  }
+  return edu.year || '';
+};
+
 // Helper to safely render list items that might be objects
 const renderListItem = (item) => {
   if (typeof item === 'object' && item !== null) {
@@ -27,7 +45,7 @@ const renderListItem = (item) => {
 // Template 1: Professional Single Column (Alexander Taylor Style)
 export const Template1 = ({ formData }) => (
   <div
-    className="bg-white p-12 min-h-[1056px] max-w-[816px] mx-auto shadow-lg"
+    className="bg-white px-8 py-12 min-h-[1056px] max-w-[816px] mx-auto shadow-lg"
     style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}
   >
     {/* Header */}
@@ -37,9 +55,16 @@ export const Template1 = ({ formData }) => (
       </h1>
       
       <div className="text-sm text-gray-600 mt-1">
-        {formData.personalInfo.email}
+        {formData.personalInfo.email && (
+          <a href={`mailto:${formData.personalInfo.email}`} className="hover:text-blue-600">{formData.personalInfo.email}</a>
+        )}
         {formData.personalInfo.phone && ` • ${formData.personalInfo.phone}`}
-        {formData.personalInfo.linkedin && ` • ${formData.personalInfo.linkedin}`}
+        {formData.personalInfo.linkedin && (
+          <> • <a href={formData.personalInfo.linkedin.startsWith('http') ? formData.personalInfo.linkedin : `https://${formData.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">{formData.personalInfo.linkedin}</a></>
+        )}
+        {formData.personalInfo.github && (
+          <> • <a href={formData.personalInfo.github.startsWith('http') ? formData.personalInfo.github : `https://${formData.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">{formData.personalInfo.github}</a></>
+        )}
         {formData.personalInfo.address && ` • ${formData.personalInfo.address}`}
       </div>
     </div>
@@ -148,7 +173,7 @@ export const Template1 = ({ formData }) => (
                 )}
               </div>
               <div className="text-sm text-gray-600 text-right">
-                <p>{edu.year}</p>
+                <p>{formatEduDate(edu)}</p>
               </div>
             </div>
           ))}
@@ -225,7 +250,7 @@ export const Template2 = ({ formData }) => (
             <div key={index} className="mb-4">
               <p className="font-bold text-sm text-gray-800">{edu.degree}</p>
               <p className="text-sm text-gray-600">{edu.institution}</p>
-              <p className="text-xs text-gray-500 mt-1">{edu.year}</p>
+              <p className="text-xs text-gray-500 mt-1">{formatEduDate(edu)}</p>
               {edu.gpa && (
                 <p className="text-xs text-gray-500">
                   {edu.gradeType === 'percentage' ? 'Percentage' : 'CGPA'}: {edu.gpa}
@@ -403,7 +428,7 @@ export const Template3 = ({ formData }) => (
           <h2 className="text-xl font-bold mb-4 tracking-wider">EDUCATION</h2>
           {formData.education.map((edu, index) => (
             <div key={index} className="mb-4">
-              <p className="text-sm font-semibold">{edu.year}</p>
+              <p className="text-sm font-semibold">{formatEduDate(edu)}</p>
               <p className="font-bold text-sm mt-1">{edu.institution?.toUpperCase()}</p>
               <p className="text-sm opacity-90">{edu.degree}</p>
               {edu.gpa && (

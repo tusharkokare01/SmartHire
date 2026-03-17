@@ -30,7 +30,10 @@ router.get('/interviews', async (req, res) => {
       return res.status(400).json({ message: 'Invalid candidate ID' });
     }
 
-    const interviews = await Interview.find({ candidateId, status: 'Scheduled' })
+    const interviews = await Interview.find({
+      candidateId,
+      status: { $in: ['Scheduled', 'Completed', 'Cancelled'] }
+    })
       .sort({ scheduledAt: 1 })
       .populate('candidateId', 'name email');
 
@@ -38,6 +41,46 @@ router.get('/interviews', async (req, res) => {
   } catch (error) {
     console.error('Error fetching candidate interviews:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Submit Candidate Feedback for an interview
+router.patch('/interviews/:id/feedback', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { candidateId, rating, comment } = req.body;
+
+    if (!candidateId || !mongoose.isValidObjectId(candidateId)) {
+      return res.status(400).json({ message: 'Valid candidateId is required' });
+    }
+
+    const numericRating = Number(rating);
+    if (!Number.isFinite(numericRating) || numericRating < 1 || numericRating > 5) {
+      return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+    }
+
+    const interview = await Interview.findById(id);
+    if (!interview) {
+      return res.status(404).json({ message: 'Interview not found' });
+    }
+
+    if (String(interview.candidateId) !== String(candidateId)) {
+      return res.status(403).json({ message: 'You can only submit feedback for your own interview' });
+    }
+
+    interview.feedbackByCandidate = {
+      rating: numericRating,
+      comment: String(comment || '').trim(),
+      submittedAt: new Date(),
+    };
+
+    await interview.save();
+
+    const populated = await Interview.findById(interview._id).populate('candidateId', 'name email');
+    return res.json(populated);
+  } catch (error) {
+    console.error('Error saving candidate feedback:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 });
 

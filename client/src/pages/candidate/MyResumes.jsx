@@ -142,47 +142,96 @@ const MyResumes = () => {
         const element = document.getElementById('hidden-pdf-target');
         if (!element) throw new Error('PDF target not found');
 
-        const canvas = await html2canvas(element, {
-          scale: 2.0,
-          useCORS: true,
-          logging: false,
-          backgroundColor: '#ffffff',
-          letterRendering: true
+        const resumeHTML = element.innerHTML;
+
+        // Collect all stylesheets from the current page
+        const styleSheets = Array.from(document.styleSheets);
+        let cssText = '';
+        styleSheets.forEach(sheet => {
+          try {
+            const rules = Array.from(sheet.cssRules || []);
+            rules.forEach(rule => {
+              cssText += rule.cssText + '\n';
+            });
+          } catch (e) {
+            if (sheet.href) {
+              cssText += `@import url("${sheet.href}");\n`;
+            }
+          }
         });
 
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        const pdf = new jsPDF('p', 'mm', 'a4', true);
-
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-        const imgScaledHeight = (imgHeight * pdfWidth) / imgWidth;
-
-        let heightLeft = imgScaledHeight;
-        let position = 0;
-
-        // Add content to PDF, spanning multiple pages if necessary
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgScaledHeight, undefined, 'FAST');
-        heightLeft -= pdfHeight;
-
-        while (heightLeft > 0) {
-          position = heightLeft - imgScaledHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgScaledHeight, undefined, 'FAST');
-          heightLeft -= pdfHeight;
+        const printWindow = window.open('', '_blank', 'width=900,height=700');
+        if (!printWindow) {
+          alert('Please allow pop-ups to download PDF.');
+          setDownloadingId(null);
+          setPdfTargetResume(null);
+          return;
         }
 
-        pdf.save(`${targetResume.name || 'resume'}.pdf`);
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>${targetResume.name || 'Resume'}</title>
+            <style>
+              ${cssText}
+              @media print {
+                @page { size: A4; margin: 0; }
+                html, body {
+                  margin: 0; padding: 0;
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                  color-adjust: exact !important;
+                }
+                a { text-decoration: none !important; color: inherit !important; }
+              }
+              html, body { margin: 0; padding: 0; background: white; }
+              .resume-print-wrapper { width: 816px; margin: 0 auto; background: white; }
+              * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="resume-print-wrapper">${resumeHTML}</div>
+          </body>
+          </html>
+        `);
+        printWindow.document.close();
+
+        const cleanup = () => {
+          setDownloadingId(null);
+          setPdfTargetResume(null);
+        };
+
+        const triggerPrint = () => {
+          printWindow.focus();
+          // Close window after print dialog is done (user saves or cancels)
+          printWindow.onafterprint = () => {
+            printWindow.close();
+            cleanup();
+          };
+          printWindow.print();
+        };
+
+        printWindow.onload = () => setTimeout(triggerPrint, 500);
+
+        // Fallback if onload doesn't fire
+        setTimeout(() => {
+          if (!printWindow.closed && printWindow.document.readyState === 'complete') {
+            triggerPrint();
+          }
+        }, 3000);
+
       } catch (error) {
         console.error('Download failed:', error);
         alert('Failed to generate PDF. Please try opening the resume editor.');
-      } finally {
         setDownloadingId(null);
-        setPdfTargetResume(null); // Clean up hidden DOM
+        setPdfTargetResume(null);
       }
-    }, 1000); // 1s buffer for rendering images/fonts
+    }, 1000);
   };
 
   const renderHiddenTemplate = () => {

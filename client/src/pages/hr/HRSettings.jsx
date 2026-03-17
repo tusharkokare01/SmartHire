@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HRLayout from '../../components/common/HRLayout';
-import { User, Bell, Lock, Globe, LogOut } from 'lucide-react';
+import { User, Bell, Lock, Globe, LogOut, MessageSquare } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
 import { ROUTES } from '../../utils/constants';
@@ -12,6 +12,14 @@ const HRSettings = () => {
 
     // -- STATES --
     const [activeSection, setActiveSection] = useState(null);
+    const [feedbackLoading, setFeedbackLoading] = useState(false);
+    const [feedbackSuccess, setFeedbackSuccess] = useState('');
+    const [feedbackForm, setFeedbackForm] = useState({
+        type: 'General Feedback',
+        subject: '',
+        message: '',
+        rating: 5
+    });
     const [prefs, setPrefs] = useState({
         notifications: user?.notifications || { email: true, push: true },
         language: user?.language || 'en-US'
@@ -34,6 +42,37 @@ const HRSettings = () => {
             // Save to backend
             await api.put('/auth/preferences', newPrefs);
         } catch (e) { console.error('Failed to save pref'); }
+    };
+
+    const handleSubmitFeedback = async () => {
+        if (!feedbackForm.subject.trim() || !feedbackForm.message.trim()) {
+            alert('Please add both subject and message.');
+            return;
+        }
+
+        setFeedbackLoading(true);
+        setFeedbackSuccess('');
+        try {
+            await api.post('/feedback', {
+                type: feedbackForm.type,
+                subject: feedbackForm.subject,
+                message: feedbackForm.message,
+                rating: Number(feedbackForm.rating)
+            });
+
+            setFeedbackSuccess('Thank you. Your feedback has been submitted.');
+            setFeedbackForm({
+                type: 'General Feedback',
+                subject: '',
+                message: '',
+                rating: 5
+            });
+        } catch (error) {
+            console.error('Feedback submission failed', error);
+            alert(error.response?.data?.message || 'Failed to submit feedback. Please try again.');
+        } finally {
+            setFeedbackLoading(false);
+        }
     };
 
     return (
@@ -117,7 +156,85 @@ const HRSettings = () => {
                         )}
                     </div>
 
-                    {/* 5. Logout Section */}
+                    {/* 5. Feedback Section */}
+                    <div className="border-t border-slate-100">
+                        <button onClick={() => toggleSection('feedback')} className="w-full text-left p-6 flex items-center gap-4 hover:bg-slate-50 transition-colors">
+                            <div className="p-3 bg-amber-50 text-amber-600 rounded-xl"><MessageSquare className="w-5 h-5" /></div>
+                            <div className="flex-1">
+                                <h3 className="font-bold text-slate-900">Feedback & Suggestions</h3>
+                                <p className="text-sm text-slate-500">Share product feedback, issues, or improvements.</p>
+                            </div>
+                        </button>
+                        {activeSection === 'feedback' && (
+                            <div className="px-6 pb-6 pt-4 border-t border-slate-100 space-y-4 animate-in slide-in-from-top-2">
+                                {feedbackSuccess && (
+                                    <div className="p-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 text-sm font-medium">
+                                        {feedbackSuccess}
+                                    </div>
+                                )}
+
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Type</label>
+                                    <select
+                                        value={feedbackForm.type}
+                                        onChange={(e) => setFeedbackForm(prev => ({ ...prev, type: e.target.value }))}
+                                        className="w-full px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 font-medium"
+                                    >
+                                        <option>General Feedback</option>
+                                        <option>Suggestion</option>
+                                        <option>Feature Request</option>
+                                        <option>Bug Report</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Subject</label>
+                                    <input
+                                        type="text"
+                                        value={feedbackForm.subject}
+                                        onChange={(e) => setFeedbackForm(prev => ({ ...prev, subject: e.target.value }))}
+                                        className="w-full px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 font-medium"
+                                        placeholder="Short title for your feedback"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Message</label>
+                                    <textarea
+                                        value={feedbackForm.message}
+                                        onChange={(e) => setFeedbackForm(prev => ({ ...prev, message: e.target.value }))}
+                                        className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 font-medium min-h-[120px]"
+                                        placeholder="Describe your feedback or suggestion..."
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">App Rating</label>
+                                    <select
+                                        value={feedbackForm.rating}
+                                        onChange={(e) => setFeedbackForm(prev => ({ ...prev, rating: Number(e.target.value) }))}
+                                        className="w-full px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 font-medium"
+                                    >
+                                        <option value={5}>5 - Excellent</option>
+                                        <option value={4}>4 - Good</option>
+                                        <option value={3}>3 - Average</option>
+                                        <option value={2}>2 - Needs improvement</option>
+                                        <option value={1}>1 - Poor</option>
+                                    </select>
+                                </div>
+
+                                <button
+                                    onClick={handleSubmitFeedback}
+                                    disabled={feedbackLoading}
+                                    className="w-full py-2.5 px-4 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 disabled:opacity-70 transition-colors"
+                                >
+                                    {feedbackLoading ? 'Submitting...' : 'Submit Feedback'}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 6. Logout Section */}
                     <div className="border-t border-slate-100">
                         <button onClick={() => {
                             logout();

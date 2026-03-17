@@ -44,6 +44,8 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/assessments', assessmentRoutes);
 import paymentRoutes from './routes/paymentRoutes.js';
 app.use('/api/payment', paymentRoutes);
+import feedbackRoutes from './routes/feedback.js';
+app.use('/api/feedback', feedbackRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);

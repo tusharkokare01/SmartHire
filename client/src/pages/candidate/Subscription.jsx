@@ -45,6 +45,14 @@ const Subscription = () => {
             });
             console.log("Order created:", order);
 
+            // Check if this is a free upgrade (free coupon applied)
+            if (order.isFreeUpgrade) {
+                setLoading(false);
+                await refreshUser();
+                toast.success('Free upgrade activated! You now have Pro access.');
+                return;
+            }
+
             // 2. Open Razorpay Options
             const options = {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Enter the Key ID generated from the Dashboard

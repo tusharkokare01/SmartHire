@@ -203,6 +203,15 @@ router.post('/generate-link', async (req, res) => {
 router.post('/interviews', async (req, res) => {
   try {
     const { candidateId, jobRole, scheduledAt, platform, meetingLink, meetingPassword: providedPassword } = req.body;
+    const scheduledDate = new Date(scheduledAt);
+
+    if (!candidateId || !jobRole || !scheduledAt || !platform) {
+      return res.status(400).json({ message: 'candidateId, jobRole, scheduledAt and platform are required' });
+    }
+
+    if (Number.isNaN(scheduledDate.getTime())) {
+      return res.status(400).json({ message: 'Invalid scheduledAt value' });
+    }
 
     let finalMeetingLink = meetingLink;
     let meetingPassword = providedPassword || '';
@@ -213,11 +222,11 @@ router.post('/interviews', async (req, res) => {
       const topic = `Interview with ${candidate ? candidate.name : 'Candidate'}`;
 
       if (platform === 'Zoom') {
-        const result = await createZoomMeeting(topic, scheduledAt);
+        const result = await createZoomMeeting(topic, scheduledDate.toISOString());
         finalMeetingLink = result.url;
         meetingPassword = result.password;
       } else {
-        const result = await createGoogleMeet(topic, scheduledAt);
+        const result = await createGoogleMeet(topic, scheduledDate.toISOString());
         finalMeetingLink = result.url;
       }
     }
@@ -225,7 +234,7 @@ router.post('/interviews', async (req, res) => {
     const interview = new Interview({
       candidateId,
       jobRole,
-      scheduledAt,
+      scheduledAt: scheduledDate,
       platform,
       meetingLink: finalMeetingLink,
       meetingPassword,
@@ -237,6 +246,61 @@ router.post('/interviews', async (req, res) => {
   } catch (error) {
     console.error('Error creating interview:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Add Interview Feedback by HR and mark meeting as completed
+router.patch('/interviews/:id/feedback', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { overall, strengths, improvements } = req.body;
+
+    const normalizedStrengths = Array.isArray(strengths)
+      ? strengths.filter(Boolean)
+      : String(strengths || '')
+        .split(',')
+        .map(item => item.trim())
+        .filter(Boolean);
+
+    const normalizedImprovements = Array.isArray(improvements)
+      ? improvements.filter(Boolean)
+      : String(improvements || '')
+        .split(',')
+        .map(item => item.trim())
+        .filter(Boolean);
+
+    const normalizedOverall = String(overall || '').trim();
+    if (!normalizedOverall && normalizedStrengths.length === 0 && normalizedImprovements.length === 0) {
+      return res.status(400).json({ message: 'At least one feedback field is required' });
+    }
+
+    const interview = await Interview.findById(id);
+    if (!interview) {
+      return res.status(404).json({ message: 'Interview not found' });
+    }
+
+    const submittedAt = new Date();
+    interview.feedback = {
+      overall: normalizedOverall,
+      strengths: normalizedStrengths,
+      improvements: normalizedImprovements,
+    };
+    interview.feedbackByHR = {
+      overall: normalizedOverall,
+      strengths: normalizedStrengths,
+      improvements: normalizedImprovements,
+      submittedAt,
+      submittedBy: req.user?.id,
+    };
+    interview.status = 'Completed';
+
+    await interview.save();
+
+    const populated = await Interview.findById(interview._id).populate('candidateId', 'name email');
+    return res.json(populated);
+  } catch (error) {
+    console.error('Error saving interview feedback:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 });
 

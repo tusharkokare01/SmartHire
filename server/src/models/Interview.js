@@ -14,10 +14,23 @@ const interviewSchema = new mongoose.Schema(
       strengths: [String],
       improvements: [String],
     },
+    feedbackByHR: {
+      overall: { type: String },
+      strengths: [{ type: String }],
+      improvements: [{ type: String }],
+      submittedAt: { type: Date },
+      submittedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    },
+    feedbackByCandidate: {
+      rating: { type: Number, min: 1, max: 5 },
+      comment: { type: String },
+      submittedAt: { type: Date },
+    },
     duration: { type: Number }, // in minutes
     platform: { type: String, enum: ['Zoom', 'Google Meet', 'Phone', 'In-Person'], default: 'Google Meet' },
     meetingLink: { type: String },
-  meetingPassword: { type: String }, // For Zoom/Meet passcodes
+    meetingPassword: { type: String }, // For Zoom/Meet passcodes
+    cancellationReason: { type: String },
   },
   { timestamps: true }
 );

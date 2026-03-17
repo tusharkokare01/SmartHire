@@ -22,6 +22,7 @@ export const ROUTES = {
   HR_MEETINGS: '/hr/meetings',
   HR_MCQ: '/hr/mcq-creator',
   HR_MESSAGES: '/hr/messages',
+  HR_FEEDBACK: '/hr/feedback',
   HR_SETTINGS: '/hr/settings',
   HR_PROFILE: '/hr/settings/profile',
   HR_CHANGE_PASSWORD: '/hr/settings/change-password',

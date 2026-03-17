@@ -206,7 +206,6 @@ const HRCandidates = () => {
       date: dateString,
       time: '10:00',
       location: '',
-      location: '',
       platform: 'Zoom'
     });
 
@@ -860,7 +859,7 @@ const HRCandidates = () => {
                   <label className="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Platform</label>
                   <div className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-sm font-medium text-slate-600 flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                    Zoom Meeting
+                    {interviewData.platform}
                   </div>
                 </div>
 
@@ -887,7 +886,9 @@ const HRCandidates = () => {
                             const response = await api.post('/hr/generate-link', {
                               platform: interviewData.platform,
                               topic: `Interview with ${currentApplication.candidateId?.name}`,
-                              startTime: interviewData.date ? new Date(`${interviewData.date}T${interviewData.time || '10:00'}`) : new Date()
+                              startTime: interviewData.date
+                                ? new Date(`${interviewData.date}T${interviewData.time || '10:00'}`).toISOString()
+                                : new Date().toISOString()
                             });
                             setInterviewData(prev => ({
                               ...prev,
@@ -938,7 +939,7 @@ const HRCandidates = () => {
                         const response = await api.post('/hr/interviews', {
                           candidateId: currentApplication.candidateId._id,
                           jobRole: currentApplication.jobTitle,
-                          scheduledAt: new Date(`${interviewData.date}T${interviewData.time}`),
+                          scheduledAt: new Date(`${interviewData.date}T${interviewData.time}`).toISOString(),
                           platform: interviewData.platform,
                           meetingLink: interviewData.location,
                           meetingPassword: interviewData.password
@@ -965,7 +966,7 @@ const HRCandidates = () => {
                         });
                         setShowInterviewModal(false);
                         setShowSuccessModal(true);
-                        setInterviewData({ date: '', time: '', location: '', platform: 'Google Meet' });
+                        setInterviewData({ date: '', time: '', location: '', platform: 'Zoom' });
                       } catch (error) {
                         console.error('Failed to schedule interview:', error);
                         alert('Failed to schedule interview. Please try again.');

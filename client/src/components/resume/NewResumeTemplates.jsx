@@ -1,6 +1,23 @@
 import React from 'react';
 import { Phone, Mail, MapPin, Linkedin, Globe, Github, Award, Book, Briefcase, User } from 'lucide-react';
 
+// Helper to format education date range
+const formatEduDate = (edu) => {
+  const fmt = (dateStr) => {
+    if (!dateStr) return '';
+    const [y, m] = dateStr.split('-');
+    if (!y || !m) return dateStr;
+    const date = new Date(Number(y), Number(m) - 1);
+    return date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+  };
+  if (edu.startDate || edu.endDate) {
+    const start = fmt(edu.startDate);
+    const end = fmt(edu.endDate) || 'Present';
+    return start ? `${start} – ${end}` : end;
+  }
+  return edu.year || '';
+};
+
 // Template 4: Peach & Black (Jordan Brown Style)
 export const Template4 = ({ formData }) => (
   <div className="bg-white min-h-[1056px] max-w-[816px] mx-auto shadow-lg flex flex-col">
@@ -81,7 +98,7 @@ export const Template4 = ({ formData }) => (
               <div key={index}>
                 <h3 className="font-bold">{edu.institution}</h3>
                 <p className="text-rose-200 text-sm">{edu.degree}</p>
-                <p className="text-gray-400 text-sm">{edu.year}</p>
+                <p className="text-gray-400 text-sm">{formatEduDate(edu)}</p>
               </div>
             )) : (
               <p className="text-gray-400 text-sm">Add your education to see it here.</p>
@@ -163,7 +180,7 @@ export const Template5 = ({ formData }) => (
               <div key={idx}>
                 <h3 className="font-bold text-sm">{edu.degree}</h3>
                 <p className="text-sm">{edu.institution}</p>
-                <p className="text-xs text-gray-500">{edu.year}</p>
+                <p className="text-xs text-gray-500">{formatEduDate(edu)}</p>
               </div>
             ))}
           </div>
@@ -327,7 +344,7 @@ export const Template6 = ({ formData }) => (
             <div key={idx}>
               <h3 className="font-bold text-white">{edu.degree}</h3>
               <p className="text-red-200 text-sm">{edu.institution}</p>
-              <p className="text-red-300 text-xs mt-1">{edu.year}</p>
+              <p className="text-red-300 text-xs mt-1">{formatEduDate(edu)}</p>
             </div>
           ))}
         </div>
@@ -388,7 +405,7 @@ export const Template7 = ({ formData }) => (
         <div className="space-y-4">
           {formData.education.map((edu, idx) => (
             <div key={idx} className="flex gap-8">
-              <div className="w-32 text-sm font-bold text-gray-600">{edu.year}</div>
+              <div className="w-32 text-sm font-bold text-gray-600">{formatEduDate(edu)}</div>
               <div>
                 <h3 className="font-bold text-gray-900">{edu.degree}</h3>
                 <p className="text-sm text-gray-700">{edu.institution}</p>
@@ -492,7 +509,7 @@ export const Template8 = ({ formData }) => (
             <tr key={idx} className="border-b border-gray-100">
               <td className="py-1">{edu.degree}</td>
               <td className="py-1">{edu.institution}</td>
-              <td className="text-right py-1">{edu.year}</td>
+              <td className="text-right py-1">{formatEduDate(edu)}</td>
               <td className="text-right py-1">{edu.gpa || 'N/A'}</td>
             </tr>
           ))}
@@ -654,7 +671,7 @@ export const Template9 = ({ formData }) => (
                 <h3 className="font-bold text-gray-800 text-sm">{edu.institution}</h3>
                 <p className="text-xs text-gray-500">{edu.degree}</p>
               </div>
-              <span className="text-xs text-gray-400">{edu.year}</span>
+              <span className="text-xs text-gray-400">{formatEduDate(edu)}</span>
             </div>
           ))}
         </div>
@@ -737,7 +754,7 @@ export const Template10 = ({ formData }) => (
                 <div key={idx}>
                   <h3 className="text-white text-sm font-bold">{edu.institution}</h3>
                   <p className="text-xs text-slate-400">{edu.degree}</p>
-                  <p className="text-xs text-slate-500">{edu.year}</p>
+                  <p className="text-xs text-slate-500">{formatEduDate(edu)}</p>
                 </div>
               ))}
             </div>
@@ -848,7 +865,7 @@ export const Template11 = ({ formData }) => (
                 <div key={idx} className="bg-gray-50 p-4 rounded-xl border-2 border-transparent hover:border-black transition-all">
                   <h3 className="font-bold">{edu.institution}</h3>
                   <p className="text-sm font-medium text-gray-600">{edu.degree}</p>
-                  <p className="text-xs font-bold text-gray-400 mt-1">{edu.year}</p>
+                  <p className="text-xs font-bold text-gray-400 mt-1">{formatEduDate(edu)}</p>
                 </div>
               ))}
             </div>
@@ -950,7 +967,7 @@ export const Template12 = ({ formData }) => (
               <div key={idx}>
                 <h3 className="font-bold">{edu.institution}</h3>
                 <p className="text-sm italic">{edu.degree}</p>
-                <p className="text-sm text-stone-500">{edu.year}</p>
+                <p className="text-sm text-stone-500">{formatEduDate(edu)}</p>
               </div>
             ))}
           </div>
@@ -1041,7 +1058,7 @@ export const Template13 = ({ formData }) => (
               <div key={idx} className="bg-indigo-50 p-4 rounded-xl">
                 <h3 className="font-bold text-indigo-900">{edu.institution}</h3>
                 <p className="text-sm text-indigo-700">{edu.degree}</p>
-                <p className="text-xs text-indigo-500 mt-1 font-bold">{edu.year}</p>
+                <p className="text-xs text-indigo-500 mt-1 font-bold">{formatEduDate(edu)}</p>
               </div>
             ))}
           </div>

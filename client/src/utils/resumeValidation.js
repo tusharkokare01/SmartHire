@@ -14,7 +14,10 @@ export const resumeSchema = z.object({
         degree: z.string().optional().or(z.literal('')),
         institution: z.string().optional().or(z.literal('')),
         year: z.string().optional(),
+        startDate: z.string().optional().or(z.literal('')),
+        endDate: z.string().optional().or(z.literal('')),
         gpa: z.string().optional(),
+        gradeType: z.string().optional(),
     })).optional(),
     experience: z.array(z.object({
         title: z.string().optional().or(z.literal('')),

@@ -36,6 +36,7 @@ import HRProfileSettings from './pages/hr/HRProfileSettings';
 import HRChangePassword from './pages/hr/HRChangePassword';
 import HRJobs from './pages/hr/HRJobs';
 import PostJob from './pages/hr/PostJob';
+import HRFeedback from './pages/hr/HRFeedback';
 
 function App() {
   return (
@@ -259,6 +260,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={[USER_ROLES.HR]}>
                 <PostJob />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTES.HR_FEEDBACK}
+            element={
+              <ProtectedRoute allowedRoles={[USER_ROLES.HR]}>
+                <HRFeedback />
               </ProtectedRoute>
             }
           />

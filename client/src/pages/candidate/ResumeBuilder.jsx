@@ -343,74 +343,108 @@ const ResumeBuilder = () => {
 
     setIsDownloading(true);
     try {
-      const canvas = await html2canvas(element, {
-        scale: 2.0, // 2x is plenty sharp for printing while keeping file size small
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        letterRendering: true,
-        allowTaint: false
-      });
+      // Clone the resume HTML content
+      const resumeHTML = element.innerHTML;
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95); // High quality JPEG for better compression than PNG
-      const pdf = new jsPDF('p', 'mm', 'a4', true); // Enable internal compression
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      // Maintain aspect ratio while fitting to PDF width
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const imgScaledHeight = (imgHeight * pdfWidth) / imgWidth;
-
-      let heightLeft = imgScaledHeight;
-      let position = 0;
-      let currentPage = 1;
-
-      // Add first page
-      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgScaledHeight, undefined, 'FAST');
-      heightLeft -= pdfHeight;
-
-      // Add subsequent pages if content overflows A4 height
-      while (heightLeft > 0) {
-        position = heightLeft - imgScaledHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgScaledHeight, undefined, 'FAST');
-        heightLeft -= pdfHeight;
-        currentPage++;
-      }
-
-      // Add clickable links with correct mapping
-      const links = element.querySelectorAll('a[href]');
-      links.forEach(link => {
-        const href = link.getAttribute('href');
-        if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
-          const rect = link.getBoundingClientRect();
-          const elementRect = element.getBoundingClientRect();
-
-          const relX = rect.left - elementRect.left;
-          const relY = rect.top - elementRect.top;
-
-          // PDF Dimensions (A4): 210mm wide. Element width is 816px.
-          const pdfX = (relX / 816) * pdfWidth;
-          const pdfY = (relY / 816) * pdfWidth; // Y also depends on width ratio for accurate mapping
-          const pdfLinkWidth = (rect.width / 816) * pdfWidth;
-          const pdfLinkHeight = (rect.height / 816) * pdfWidth;
-
-          const linkPage = Math.floor(pdfY / pdfHeight);
-          if (linkPage < currentPage) {
-            pdf.setPage(linkPage + 1);
-            const pageY = pdfY - (linkPage * pdfHeight);
-            pdf.link(pdfX, pageY, pdfLinkWidth, pdfLinkHeight, { url: href });
+      // Collect all stylesheets from the current page
+      const styleSheets = Array.from(document.styleSheets);
+      let cssText = '';
+      styleSheets.forEach(sheet => {
+        try {
+          const rules = Array.from(sheet.cssRules || []);
+          rules.forEach(rule => {
+            cssText += rule.cssText + '\n';
+          });
+        } catch (e) {
+          // Cross-origin stylesheets can't be read, skip them
+          if (sheet.href) {
+            cssText += `@import url("${sheet.href}");\n`;
           }
         }
       });
 
-      pdf.save(`${resumeName || 'resume'}.pdf`);
+      // Open a new window for printing
+      const printWindow = window.open('', '_blank', 'width=900,height=700');
+      if (!printWindow) {
+        alert('Please allow pop-ups to download PDF.');
+        setIsDownloading(false);
+        return;
+      }
+
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${resumeName || 'Resume'}</title>
+          <style>
+            ${cssText}
+
+            @media print {
+              @page {
+                size: A4;
+                margin: 0;
+              }
+              html, body {
+                margin: 0;
+                padding: 0;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+              }
+              a { text-decoration: none !important; color: inherit !important; }
+            }
+
+            html, body {
+              margin: 0;
+              padding: 0;
+              background: white;
+            }
+
+            .resume-print-wrapper {
+              width: 816px;
+              margin: 0 auto;
+              background: white;
+            }
+
+            /* Ensure backgrounds print */
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              color-adjust: exact !important;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="resume-print-wrapper">
+            ${resumeHTML}
+          </div>
+        </body>
+        </html>
+      `);
+
+      printWindow.document.close();
+
+      const triggerPrint = () => {
+        printWindow.focus();
+        printWindow.onafterprint = () => {
+          printWindow.close();
+          setIsDownloading(false);
+        };
+        printWindow.print();
+      };
+
+      printWindow.onload = () => setTimeout(triggerPrint, 500);
+
+      // Fallback if onload doesn't fire
+      setTimeout(() => {
+        if (!printWindow.closed && printWindow.document.readyState === 'complete') {
+          triggerPrint();
+        }
+      }, 3000);
+
     } catch (error) {
       console.error('PDF Generation failed:', error);
       alert('Failed to generate PDF. Please try again.');
-    } finally {
       setIsDownloading(false);
     }
   };

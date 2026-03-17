@@ -17,6 +17,8 @@ const CandidateInterviews = () => {
   const [copiedId, setCopiedId] = useState(null);
   const [nextInterview, setNextInterview] = useState(null);
   const [timeLeft, setTimeLeft] = useState('');
+  const [feedbackDrafts, setFeedbackDrafts] = useState({});
+  const [savingFeedbackId, setSavingFeedbackId] = useState(null);
 
   useEffect(() => {
     fetchInterviews();
@@ -103,6 +105,45 @@ const CandidateInterviews = () => {
     return new Date(dateString).toLocaleTimeString(undefined, {
       hour: '2-digit', minute: '2-digit'
     });
+  };
+
+  const updateDraft = (interviewId, patch) => {
+    setFeedbackDrafts(prev => ({
+      ...prev,
+      [interviewId]: {
+        rating: prev[interviewId]?.rating || 5,
+        comment: prev[interviewId]?.comment || '',
+        ...patch,
+      }
+    }));
+  };
+
+  const submitCandidateFeedback = async (interviewId) => {
+    const userId = user?.id || user?._id;
+    if (!userId) {
+      alert('User session missing. Please sign in again.');
+      return;
+    }
+
+    const draft = feedbackDrafts[interviewId] || { rating: 5, comment: '' };
+
+    try {
+      setSavingFeedbackId(interviewId);
+      const response = await api.patch(`/candidate/interviews/${interviewId}/feedback`, {
+        candidateId: userId,
+        rating: draft.rating,
+        comment: draft.comment,
+      });
+
+      setInterviews(prev => prev.map(item => (
+        item._id === interviewId ? response.data : item
+      )));
+    } catch (err) {
+      console.error('Error submitting candidate feedback:', err);
+      alert('Failed to submit feedback. Please try again.');
+    } finally {
+      setSavingFeedbackId(null);
+    }
   };
 
   return (
@@ -292,6 +333,49 @@ const CandidateInterviews = () => {
                         )}
                       </div>
                     </div>
+
+                    {interview.status === 'Completed' && (
+                      <div className="px-6 pb-6 pl-[6.5rem] md:pl-6">
+                        {interview.feedbackByCandidate?.submittedAt ? (
+                          <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
+                            <div className="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-2">Your Feedback</div>
+                            <div className="text-sm text-emerald-900 font-medium mb-1">Rating: {interview.feedbackByCandidate.rating}/5</div>
+                            <p className="text-sm text-emerald-800">
+                              {interview.feedbackByCandidate.comment || 'No additional comment provided.'}
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 space-y-3">
+                            <div className="text-xs font-bold uppercase tracking-wider text-amber-700">Share Interview Feedback</div>
+                            <div className="flex items-center gap-3">
+                              <label className="text-sm font-medium text-slate-700">Rating</label>
+                              <select
+                                value={feedbackDrafts[interview._id]?.rating || 5}
+                                onChange={(e) => updateDraft(interview._id, { rating: Number(e.target.value) })}
+                                className="px-3 py-2 rounded-lg border border-amber-200 bg-white text-sm"
+                              >
+                                {[5, 4, 3, 2, 1].map(score => (
+                                  <option key={score} value={score}>{score}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <textarea
+                              value={feedbackDrafts[interview._id]?.comment || ''}
+                              onChange={(e) => updateDraft(interview._id, { comment: e.target.value })}
+                              placeholder="How was the interview experience?"
+                              className="w-full min-h-[90px] px-3 py-2 rounded-lg border border-amber-200 bg-white text-sm focus:outline-none focus:border-amber-400"
+                            />
+                            <button
+                              onClick={() => submitCandidateFeedback(interview._id)}
+                              disabled={savingFeedbackId === interview._id}
+                              className="px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-bold hover:bg-amber-700 disabled:opacity-70"
+                            >
+                              {savingFeedbackId === interview._id ? 'Submitting...' : 'Submit Feedback'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

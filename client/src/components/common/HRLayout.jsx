@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import {
     LogOut, LayoutDashboard, Users,
     Calendar, PenTool, Briefcase,
-    Settings, CircleHelp, Bell, ChevronRight, Menu, X, Search, Mail, MessageSquare
+    Settings, CircleHelp, Bell, ChevronRight, Menu, X, Search, Mail, MessageSquare, Star
 } from 'lucide-react';
 import { ROUTES } from '../../utils/constants';
 
@@ -120,6 +120,7 @@ const HRLayout = ({ children, fullWidth = true }) => {
                         {[
                             { path: ROUTES.HR_MEETINGS, label: 'Interviews', icon: Calendar },
                             { path: ROUTES.HR_MCQ, label: 'Assessments', icon: PenTool },
+                            { path: ROUTES.HR_FEEDBACK, label: 'Feedback', icon: Star },
                         ].map((item) => (
                             <Link
                                 key={item.path}

@@ -22,6 +22,14 @@ const HRMeetings = () => {
   const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [cancelReason, setCancelReason] = useState('');
   const [notifyCandidate, setNotifyCandidate] = useState(true);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [selectedFeedbackMeeting, setSelectedFeedbackMeeting] = useState(null);
+  const [isSavingFeedback, setIsSavingFeedback] = useState(false);
+  const [feedbackForm, setFeedbackForm] = useState({
+    overall: '',
+    strengths: '',
+    improvements: ''
+  });
 
   // Chat State
   const [showChat, setShowChat] = useState(false);
@@ -82,6 +90,45 @@ const HRMeetings = () => {
   const openChat = (meeting) => {
     setChatCandidate(meeting.candidateId);
     setShowChat(true);
+  };
+
+  const openFeedbackModal = (meeting) => {
+    setSelectedFeedbackMeeting(meeting);
+    setFeedbackForm({
+      overall: meeting.feedbackByHR?.overall || '',
+      strengths: (meeting.feedbackByHR?.strengths || []).join(', '),
+      improvements: (meeting.feedbackByHR?.improvements || []).join(', '),
+    });
+    setShowFeedbackModal(true);
+  };
+
+  const closeFeedbackModal = () => {
+    setShowFeedbackModal(false);
+    setSelectedFeedbackMeeting(null);
+    setFeedbackForm({ overall: '', strengths: '', improvements: '' });
+  };
+
+  const submitFeedback = async () => {
+    if (!selectedFeedbackMeeting) return;
+
+    try {
+      setIsSavingFeedback(true);
+      const response = await api.patch(`/hr/interviews/${selectedFeedbackMeeting._id}/feedback`, {
+        overall: feedbackForm.overall,
+        strengths: feedbackForm.strengths,
+        improvements: feedbackForm.improvements,
+      });
+
+      setMeetings(prev => prev.map(meeting =>
+        meeting._id === selectedFeedbackMeeting._id ? response.data : meeting
+      ));
+      closeFeedbackModal();
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      alert('Failed to save feedback. Please try again.');
+    } finally {
+      setIsSavingFeedback(false);
+    }
   };
 
   // Derived Stats
@@ -278,27 +325,32 @@ const HRMeetings = () => {
 
                       {/* Middle: Info */}
                       <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-50 to-slate-100 border border-slate-200 flex items-center justify-center text-indigo-700 font-bold text-lg">
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div className="w-12 h-12 shrink-0 rounded-full bg-gradient-to-br from-indigo-50 to-slate-100 border border-slate-200 flex items-center justify-center text-indigo-700 font-bold text-lg">
                             {meeting.candidateId?.name?.charAt(0) || 'C'}
                           </div>
-                          <div>
+                          <div className="min-w-0">
                             <h3 className="font-bold text-slate-900 text-lg truncate">{meeting.candidateId?.name || 'Unknown Candidate'}</h3>
                             <div className="flex items-center gap-2 text-sm text-slate-500">
-                              <Briefcase className="w-3.5 h-3.5" />
+                              <Briefcase className="w-3.5 h-3.5 shrink-0" />
                               <span className="truncate">{meeting.jobRole}</span>
                             </div>
                           </div>
                         </div>
 
-                        <div className="flex flex-col justify-center space-y-1">
+                        <div className="flex flex-col justify-center space-y-1 min-w-0 overflow-hidden">
                           <div className="flex items-center gap-2 text-sm text-slate-500">
-                            {meeting.platform === 'In-Person' ? <MapPin className="w-4 h-4" /> : <Video className="w-4 h-4" />}
-                            <span className="font-medium">{meeting.platform}</span>
+                            {meeting.platform === 'In-Person' ? <MapPin className="w-4 h-4 shrink-0" /> : <Video className="w-4 h-4 shrink-0" />}
+                            <span className="font-medium truncate">{meeting.platform}</span>
                           </div>
                           {meeting.meetingPassword && (
-                            <div className="text-xs text-slate-400">
+                            <div className="text-xs text-slate-400 truncate">
                               Passcode: <span className="font-mono">{meeting.meetingPassword}</span>
+                            </div>
+                          )}
+                          {meeting.feedbackByHR?.submittedAt && (
+                            <div className="text-xs text-emerald-600 font-medium">
+                              Feedback submitted
                             </div>
                           )}
                         </div>
@@ -324,6 +376,15 @@ const HRMeetings = () => {
                         >
                           <MessageSquare className="w-5 h-5" />
                         </button>
+                        {meeting.status !== 'Cancelled' && (
+                          <button
+                            onClick={() => openFeedbackModal(meeting)}
+                            className="px-4 py-2 text-sm font-bold rounded-xl bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors"
+                            title="Add Interview Feedback"
+                          >
+                            {meeting.feedbackByHR?.submittedAt ? 'Edit Feedback' : 'Add Feedback'}
+                          </button>
+                        )}
                         {meeting.status !== 'Cancelled' && (
                           <button
                             onClick={() => openCancelModal(meeting)}
@@ -422,6 +483,79 @@ const HRMeetings = () => {
                       <XCircle className="w-4 h-4" />
                       Confirm Cancellation
                     </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Feedback Modal */}
+        {showFeedbackModal && selectedFeedbackMeeting && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden">
+              <div className="p-6 border-b border-slate-200 bg-amber-50">
+                <h3 className="text-xl font-bold text-amber-800">Interview Feedback</h3>
+                <p className="text-sm text-amber-700 mt-1">
+                  {selectedFeedbackMeeting.candidateId?.name} - {selectedFeedbackMeeting.jobRole}
+                </p>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-bold text-slate-900 mb-2">Overall Feedback</label>
+                  <textarea
+                    value={feedbackForm.overall}
+                    onChange={(e) => setFeedbackForm(prev => ({ ...prev, overall: e.target.value }))}
+                    placeholder="Summarize interview performance..."
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-400 min-h-[110px] text-sm resize-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-900 mb-2">Strengths (comma separated)</label>
+                    <input
+                      type="text"
+                      value={feedbackForm.strengths}
+                      onChange={(e) => setFeedbackForm(prev => ({ ...prev, strengths: e.target.value }))}
+                      placeholder="Communication, problem solving"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-400 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-900 mb-2">Improvements (comma separated)</label>
+                    <input
+                      type="text"
+                      value={feedbackForm.improvements}
+                      onChange={(e) => setFeedbackForm(prev => ({ ...prev, improvements: e.target.value }))}
+                      placeholder="System design depth"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-400 text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3">
+                <button
+                  onClick={closeFeedbackModal}
+                  disabled={isSavingFeedback}
+                  className="px-5 py-2.5 rounded-xl font-bold text-slate-600 hover:bg-slate-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={submitFeedback}
+                  disabled={isSavingFeedback}
+                  className="px-5 py-2.5 rounded-xl font-bold text-white bg-amber-600 hover:bg-amber-700 transition-all flex items-center gap-2"
+                >
+                  {isSavingFeedback ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Feedback'
                   )}
                 </button>
               </div>
