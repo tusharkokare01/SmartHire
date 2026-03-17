@@ -18,6 +18,8 @@ const formatEduDate = (edu) => {
     return start ? `${start} – ${end}` : end;
   }
   return edu.year || '';
+
+  
 };
 
 // Helper to safely render list items that might be objects
