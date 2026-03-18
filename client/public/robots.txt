@@ -1,0 +1,14 @@
+# Smart Career Hub - Robots.txt
+# https://tusharkokare.tech
+
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /register
+
+# Disallow private/authenticated routes
+Disallow: /candidate/
+Disallow: /hr/
+
+# Sitemap location
+Sitemap: https://tusharkokare.tech/sitemap.xml
