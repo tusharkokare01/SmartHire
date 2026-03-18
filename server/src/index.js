@@ -1,4 +1,8 @@
 import 'dotenv/config';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
@@ -46,6 +50,14 @@ import paymentRoutes from './routes/paymentRoutes.js';
 app.use('/api/payment', paymentRoutes);
 import feedbackRoutes from './routes/feedback.js';
 app.use('/api/feedback', feedbackRoutes);
+
+// Serve React frontend static files
+app.use(express.static(path.join(__dirname, '..', '..', 'client', 'dist')));
+
+// Catch-all: send index.html for any non-API route (fixes 404 on refresh)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', '..', 'client', 'dist', 'index.html'));
+});
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
