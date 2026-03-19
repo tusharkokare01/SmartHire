@@ -23,43 +23,43 @@ const features = [
     icon: '📝',
     title: 'AI Resume Builder',
     desc: 'Create stunning, ATS-friendly resumes with AI assistance. Choose from professional templates and export to PDF.',
-    accent: '#6366f1',
-    bg: 'rgba(99,102,241,0.12)',
+    accent: '#059669',
+    bg: 'rgba(5,150,105,0.12)',
   },
   {
     icon: '🎯',
     title: 'AI Resume Scorer',
     desc: 'Get instant AI-powered feedback on your resume. Improve your score and stand out to recruiters.',
-    accent: '#10b981',
-    bg: 'rgba(16,185,129,0.12)',
+    accent: '#34d399',
+    bg: 'rgba(52,211,153,0.12)',
   },
   {
     icon: '💼',
     title: 'Smart Job Search',
     desc: 'Browse thousands of job listings. Filter by role, location, salary, and apply directly from the platform.',
-    accent: '#f59e0b',
-    bg: 'rgba(245,158,11,0.12)',
+    accent: '#0d9488',
+    bg: 'rgba(13,148,136,0.12)',
   },
   {
     icon: '🎤',
     title: 'Mock Interviews',
     desc: 'Practice with AI-powered mock interviews. Get real-time feedback and improve your interview skills.',
-    accent: '#ec4899',
-    bg: 'rgba(236,72,153,0.12)',
+    accent: '#10b981',
+    bg: 'rgba(16,185,129,0.12)',
   },
   {
     icon: '✉️',
     title: 'Cover Letter Generator',
     desc: 'Generate tailored cover letters for every job application in seconds using advanced AI.',
-    accent: '#8b5cf6',
-    bg: 'rgba(139,92,246,0.12)',
+    accent: '#047857',
+    bg: 'rgba(4,120,87,0.12)',
   },
   {
     icon: '👔',
     title: 'HR Recruitment Suite',
     desc: 'Post jobs, manage candidates, schedule interviews, and create assessments — all in one dashboard.',
-    accent: '#06b6d4',
-    bg: 'rgba(6,182,212,0.12)',
+    accent: '#6ee7b7',
+    bg: 'rgba(110,231,183,0.12)',
   },
 ];
 
@@ -96,7 +96,7 @@ const LandingPage = () => {
           </h1>
 
           <p className="landing-hero-subtitle">
-            Build professional resumes, search the best jobs, practice mock interviews, 
+            Build professional resumes, search the best jobs, practice mock interviews,
             and let AI score your resume — everything you need to land your dream job, in one platform.
           </p>
 
@@ -139,10 +139,11 @@ const LandingPage = () => {
 
           <div className="landing-features-grid">
             {features.map((f, i) => (
-              <article
+              <Link
+                to={ROUTES.LOGIN}
                 key={i}
                 className="landing-feature-card"
-                style={{ '--accent': f.accent }}
+                style={{ '--accent': f.accent, textDecoration: 'none', color: 'inherit' }}
               >
                 <div
                   className="landing-feature-icon"
@@ -152,22 +153,8 @@ const LandingPage = () => {
                 </div>
                 <h3>{f.title}</h3>
                 <p>{f.desc}</p>
-              </article>
+              </Link>
             ))}
-          </div>
-        </section>
-
-        {/* ══ CTA ══ */}
-        <section className="landing-cta" aria-label="Call to action">
-          <div className="landing-cta-box">
-            <h2>Ready to Launch Your Career?</h2>
-            <p>
-              Join thousands of professionals using Smart Career Hub to build resumes, 
-              find jobs, and ace interviews. Start for free today.
-            </p>
-            <Link to={ROUTES.REGISTER} className="landing-hero-btn filled">
-              Create Free Account <ArrowRight />
-            </Link>
           </div>
         </section>
 

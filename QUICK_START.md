@@ -70,7 +70,7 @@ Navigate to: `http://localhost:5173`
 
 ## 🔧 Next Steps
 
-1. **Set up Backend** (See `IMPLEMENTATION_ROADMAP.md`)
+1. **Set up Backend** (See `PROJECT_PLAN.md`)
    - Create Node.js/Express server
    - Set up MongoDB
    - Implement authentication API
@@ -87,8 +87,8 @@ Navigate to: `http://localhost:5173`
 
 - `README.md` - Project overview
 - `PROJECT_PLAN.md` - Complete project plan
-- `SETUP_GUIDE.md` - Detailed setup instructions
-- `IMPLEMENTATION_ROADMAP.md` - 7-day roadmap
+- `COMPREHENSIVE_FILE_ANALYSIS.md` - File-level project analysis
+- `TECHNOLOGY_AND_APIS.md` - API and integrations overview
 - `QUICK_START.md` - This file
 
 ## 🐛 Troubleshooting
@@ -119,6 +119,6 @@ Make sure Tailwind CSS is properly configured in `tailwind.config.js`
 
 ---
 
-**Ready to build? Check `IMPLEMENTATION_ROADMAP.md` for the 7-day plan!**
+**Ready to build? Check `PROJECT_PLAN.md` for the 7-day plan!**
 
 

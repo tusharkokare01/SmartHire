@@ -182,8 +182,8 @@ client/
 ## 📚 Documentation
 
 - `PROJECT_PLAN.md` - Complete project plan and technology recommendations
-- `SETUP_GUIDE.md` - Detailed setup instructions
-- `IMPLEMENTATION_ROADMAP.md` - 7-day implementation roadmap
+- `QUICK_START.md` - 5-minute setup and run guide
+- `COMPREHENSIVE_FILE_ANALYSIS.md` - project file-level analysis
 
 ## 🚧 Current Status
 
@@ -241,8 +241,8 @@ This project is for educational/demonstration purposes.
 
 ## 🆘 Support
 
-For setup issues, refer to `SETUP_GUIDE.md`
-For implementation details, refer to `IMPLEMENTATION_ROADMAP.md`
+For setup issues, refer to `QUICK_START.md`
+For implementation details, refer to `PROJECT_PLAN.md`
 
 ---
 
